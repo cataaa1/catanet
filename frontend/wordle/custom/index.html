@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CataNet | Custom Wordle</title>
+  <meta
+    name="description"
+    content="Custom Wordle en CataNet: crea una palabra personalizada y comparti un link para que otra persona la adivine."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="fondo" aria-hidden="true">
+    <div class="fondo__gradiente"></div>
+    <div class="fondo__aura fondo__aura--uno"></div>
+    <div class="fondo__aura fondo__aura--dos"></div>
+    <div class="fondo__reticula"></div>
+  </div>
+
+  <main class="app">
+    <section class="panel panel--creador" id="panel-creador">
+      <header class="creador-header">
+        <a class="btn-volver" href="/wordle/">&larr; Volver</a>
+        <span class="marca">CataNet</span>
+      </header>
+
+      <div class="hero">
+        <p class="eyebrow">Modo personalizado</p>
+        <h1>Custom Wordle</h1>
+        <p>
+          Escribi una palabra, genera un link y mandaselo a otra persona para que la adivine.
+          La palabra puede tener el largo que quieras.
+        </p>
+      </div>
+
+      <form class="formulario" id="formulario-palabra">
+        <label class="campo-label" for="input-palabra">Palabra secreta</label>
+        <div class="fila-form">
+          <input
+            class="campo"
+            id="input-palabra"
+            type="text"
+            placeholder="ej: catarata"
+            autocomplete="off"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+          >
+          <button class="btn btn--primario" type="submit">Generar link</button>
+        </div>
+        <p class="ayuda-campo">Usa letras de la A a la Z y Ñ. Las tildes se simplifican automaticamente.</p>
+      </form>
+
+      <section class="link-card" id="panel-link" hidden>
+        <p class="eyebrow">Link listo</p>
+        <div class="link-fila">
+          <input class="campo campo--link" id="input-link" type="text" readonly>
+          <button class="btn btn--secundario" id="boton-copiar" type="button">Copiar</button>
+        </div>
+        <a class="btn btn--fantasma" id="boton-probar" href="#">Probar partida</a>
+      </section>
+    </section>
+
+    <section class="panel panel--juego" id="panel-juego" hidden>
+      <header class="juego-header">
+        <div class="juego-header__lado">
+          <a class="btn-volver" href="/wordle/custom/">&larr; Crear otro</a>
+        </div>
+        <div class="juego-header__centro">
+          <p class="eyebrow">Custom Wordle</p>
+          <h1>Wordle</h1>
+        </div>
+        <div class="juego-header__lado juego-header__lado--derecha">
+          <button class="btn btn--icono" id="boton-ayuda" type="button" aria-label="Ver reglas">?</button>
+        </div>
+      </header>
+
+      <p class="estado" id="texto-estado" aria-live="polite">
+        Adivina la palabra personalizada.
+      </p>
+
+      <section class="tablero-panel" aria-label="Tablero de Custom Wordle">
+        <div class="tablero" id="tablero"></div>
+      </section>
+
+      <section class="teclado" id="teclado" aria-label="Teclado virtual"></section>
+    </section>
+  </main>
+
+  <section class="resultado-modal" id="panel-resultado" hidden aria-labelledby="resultado-titulo" role="dialog" aria-modal="true">
+    <div class="resultado" role="document">
+      <h2 id="resultado-titulo">Partida terminada</h2>
+      <p id="resultado-texto"></p>
+      <div class="resultado__acciones">
+        <a class="btn btn--primario" href="/wordle/custom/">Crear otro</a>
+        <a class="btn btn--secundario" href="/wordle/">Volver al menu</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ayuda-modal" id="panel-ayuda" hidden aria-labelledby="ayuda-titulo" role="dialog" aria-modal="true">
+    <div class="ayuda" role="document">
+      <button class="btn btn--icono ayuda__cerrar" id="boton-cerrar-ayuda" type="button" aria-label="Cerrar reglas">&times;</button>
+      <p class="eyebrow">Reglas</p>
+      <h2 id="ayuda-titulo">Como jugar Custom Wordle</h2>
+      <p>
+        Adivina la palabra personalizada en seis intentos. Cada intento debe tener exactamente
+        la misma cantidad de letras que la palabra secreta.
+      </p>
+      <div class="reglas">
+        <div class="regla">
+          <span class="ejemplo ejemplo--correcto">M</span>
+          <p><strong>Verde</strong> significa que la letra esta en la posicion correcta.</p>
+        </div>
+        <div class="regla">
+          <span class="ejemplo ejemplo--presente">A</span>
+          <p><strong>Amarillo</strong> significa que la letra esta, pero en otra posicion.</p>
+        </div>
+        <div class="regla">
+          <span class="ejemplo ejemplo--ausente">R</span>
+          <p><strong>Gris</strong> significa que la letra no esta en la palabra.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

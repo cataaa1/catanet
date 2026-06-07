@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CataNet | Co-Wordle</title>
+  <meta
+    name="description"
+    content="Co-Wordle es la version cooperativa online de Wordle: dos personas, una palabra secreta y turnos alternados."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="fondo" aria-hidden="true">
+    <div class="fondo__gradiente"></div>
+    <div class="fondo__aura fondo__aura--uno"></div>
+    <div class="fondo__aura fondo__aura--dos"></div>
+    <div class="fondo__reticula"></div>
+  </div>
+
+  <main class="app">
+    <a class="btn-volver btn-volver--inicio" id="boton-volver-inicio" href="/hub/">&larr; Volver al hub</a>
+
+    <section class="panel panel--inicio" id="panel-inicio">
+      <span class="marca">CataNet</span>
+      <h1>Co-Wordle</h1>
+      <p class="intro">
+        Una palabra secreta, seis intentos compartidos y turnos alternados. Cuando uno juega, el otro espera.
+      </p>
+
+      <div class="acciones">
+        <button class="btn btn--icono boton-ayuda" type="button" aria-label="Ver reglas">?</button>
+        <button class="btn btn--primario" id="boton-crear" type="button">Nueva partida</button>
+      </div>
+
+      <div class="union">
+        <label class="union__label" for="input-sala">Unirse con codigo</label>
+        <div class="union__fila">
+          <input
+            class="campo"
+            id="input-sala"
+            type="text"
+            maxlength="4"
+            placeholder="a1b2"
+            inputmode="text"
+            autocapitalize="none"
+            autocorrect="off"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button class="btn btn--secundario" id="boton-unirse" type="button">Unirse</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel--juego" id="panel-juego" hidden>
+      <header class="juego-header">
+        <div class="juego-header__lado juego-header__lado--izquierda">
+          <a class="btn-volver btn-volver--juego" href="/hub/">&larr; Volver</a>
+          <div class="juego-header__sala">
+            <p class="eyebrow">Sala</p>
+            <p class="juego-header__codigo" id="texto-sala">----</p>
+          </div>
+        </div>
+        <div class="juego-header__centro">
+          <h1 class="juego-header__titulo">Co-Wordle</h1>
+        </div>
+        <div class="juego-header__lado juego-header__lado--derecha">
+          <div class="acciones-header">
+            <button class="btn btn--icono boton-ayuda" type="button" aria-label="Ver reglas">?</button>
+            <button class="btn btn--secundario btn--chico" id="boton-copiar" type="button">Copiar link</button>
+          </div>
+        </div>
+      </header>
+
+      <p class="estado-sr" id="texto-estado" aria-live="polite"></p>
+
+      <div class="jugadores" id="panel-jugadores"></div>
+
+      <section class="tablero-panel">
+        <div class="tablero" id="tablero"></div>
+      </section>
+
+      <section class="teclado" id="teclado"></section>
+    </section>
+  </main>
+
+  <section class="resultado-modal" id="panel-resultado" hidden aria-labelledby="resultado-titulo" role="dialog" aria-modal="true">
+    <div class="resultado" role="document">
+      <h3 id="resultado-titulo">Partida terminada</h3>
+      <p id="resultado-texto"></p>
+      <div class="resultado__acciones">
+        <button class="btn btn--primario" id="boton-reiniciar" type="button">Revancha</button>
+        <a class="btn btn--secundario" id="boton-volver-hub-resultado" href="/hub/">Volver al hub</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ayuda-modal" id="panel-ayuda" hidden aria-labelledby="ayuda-titulo" role="dialog" aria-modal="true">
+    <div class="ayuda" role="document">
+      <button class="btn btn--icono ayuda__cerrar" id="boton-cerrar-ayuda" type="button" aria-label="Cerrar reglas">&times;</button>
+      <p class="eyebrow">Reglas</p>
+      <h2 id="ayuda-titulo">Como jugar Co-Wordle</h2>
+      <p>
+        Adivinen una palabra oculta de cinco letras en un maximo de seis intentos compartidos.
+        Cada intento debe ser una palabra de cinco letras.
+      </p>
+
+      <div class="reglas reglas--coop">
+        <div class="regla regla--texto">
+          <span class="numero-regla">1</span>
+          <p><strong>Creen una sala</strong>, copien el link y esperen a que entre la otra persona.</p>
+        </div>
+        <div class="regla regla--texto">
+          <span class="numero-regla">2</span>
+          <p><strong>Juegan por turnos</strong>: cuando una persona escribe, la otra espera su turno.</p>
+        </div>
+        <div class="regla regla--texto">
+          <span class="numero-regla">3</span>
+          <p><strong>Comparten los seis intentos</strong>. Si descubren la palabra, ganan en equipo.</p>
+        </div>
+      </div>
+
+      <div class="reglas">
+        <div class="regla">
+          <span class="ejemplo ejemplo--correcto">M</span>
+          <p><strong>Verde</strong> significa que la letra esta en la palabra y en la posicion correcta.</p>
+        </div>
+        <div class="regla">
+          <span class="ejemplo ejemplo--presente">A</span>
+          <p><strong>Amarillo</strong> significa que la letra esta en la palabra pero en otra posicion.</p>
+        </div>
+        <div class="regla">
+          <span class="ejemplo ejemplo--ausente">R</span>
+          <p><strong>Gris</strong> significa que la letra no esta presente en la palabra.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./game.js"></script>
+</body>
+</html>

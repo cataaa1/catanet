@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CataNet | Wordle individual</title>
+  <meta
+    name="description"
+    content="Wordle individual en CataNet: una palabra secreta de cinco letras y seis intentos para descubrirla."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="fondo" aria-hidden="true">
+    <div class="fondo__gradiente"></div>
+    <div class="fondo__aura fondo__aura--uno"></div>
+    <div class="fondo__aura fondo__aura--dos"></div>
+    <div class="fondo__reticula"></div>
+  </div>
+
+  <main class="app">
+    <section class="panel">
+      <header class="juego-header">
+        <div class="juego-header__lado">
+          <a class="btn-volver" href="/wordle/">&larr; Volver</a>
+        </div>
+        <div class="juego-header__centro">
+          <p class="eyebrow">Modo individual</p>
+          <h1>Wordle</h1>
+        </div>
+        <div class="juego-header__lado juego-header__lado--derecha">
+          <div class="acciones-header">
+            <button class="btn btn--icono" id="boton-ayuda" type="button" aria-label="Ver reglas">?</button>
+            <button class="btn btn--secundario btn--chico" id="boton-nueva" type="button">Nueva palabra</button>
+          </div>
+        </div>
+      </header>
+
+      <p class="estado" id="texto-estado" aria-live="polite">
+        Adivina la palabra secreta en seis intentos.
+      </p>
+
+      <section class="tablero-panel" aria-label="Tablero de Wordle">
+        <div class="tablero" id="tablero"></div>
+      </section>
+
+      <section class="teclado" id="teclado" aria-label="Teclado virtual"></section>
+    </section>
+  </main>
+
+  <section class="resultado-modal" id="panel-resultado" hidden aria-labelledby="resultado-titulo" role="dialog" aria-modal="true">
+    <div class="resultado" role="document">
+      <h2 id="resultado-titulo">Partida terminada</h2>
+      <p id="resultado-texto"></p>
+      <div class="resultado__acciones">
+        <button class="btn btn--primario" id="boton-reiniciar" type="button">Nueva palabra</button>
+        <a class="btn btn--secundario" href="/wordle/">Volver al menu</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ayuda-modal" id="panel-ayuda" hidden aria-labelledby="ayuda-titulo" role="dialog" aria-modal="true">
+    <div class="ayuda" role="document">
+      <button class="btn btn--icono ayuda__cerrar" id="boton-cerrar-ayuda" type="button" aria-label="Cerrar reglas">&times;</button>
+      <p class="eyebrow">Reglas</p>
+      <h2 id="ayuda-titulo">Como jugar Wordle</h2>
+      <p>
+        Adivina la palabra oculta de cinco letras en un maximo de seis intentos.
+        Cada intento debe ser una palabra valida de la lista del juego.
+      </p>
+      <div class="reglas">
+        <div class="regla">
+          <span class="ejemplo ejemplo--correcto">M</span>
+          <p><strong>Verde</strong> significa que la letra esta en la palabra y en la posicion correcta.</p>
+        </div>
+        <div class="regla">
+          <span class="ejemplo ejemplo--presente">A</span>
+          <p><strong>Amarillo</strong> significa que la letra esta en la palabra pero en otra posicion.</p>
+        </div>
+        <div class="regla">
+          <span class="ejemplo ejemplo--ausente">R</span>
+          <p><strong>Gris</strong> significa que la letra no esta presente en la palabra.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+</html>
