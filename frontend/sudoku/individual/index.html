@@ -10,7 +10,7 @@
   >
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -18,7 +18,6 @@
     <div class="fondo__gradiente"></div>
     <div class="fondo__halo fondo__halo--uno"></div>
     <div class="fondo__halo fondo__halo--dos"></div>
-    <div class="fondo__reticula"></div>
   </div>
 
   <main class="app">
@@ -42,48 +41,59 @@
           <button class="chip-dificultad" data-dificultad="medio" type="button">Medio</button>
           <button class="chip-dificultad" data-dificultad="dificil" type="button">Dificil</button>
         </div>
-        <p class="estado" id="texto-estado" aria-live="polite"></p>
       </section>
 
-      <section class="contenido">
-        <aside class="panel-info">
-          <article class="tarjeta-info">
-            <p class="tarjeta-info__label">Dificultad</p>
-            <strong class="tarjeta-info__valor" id="texto-dificultad">Medio</strong>
-            <p class="tarjeta-info__detalle" id="texto-dificultad-detalle"></p>
-          </article>
+      <div class="contenido">
+        <aside class="controles" aria-label="Controles del tablero">
+          <div class="acciones">
+            <button class="accion" id="boton-deshacer" type="button" title="Deshacer" aria-label="Deshacer la ultima jugada">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h9a5 5 0 0 1 0 10H8"/><polyline points="8 4 4 8 8 12"/></svg>
+              <span class="accion__texto">Deshacer</span>
+            </button>
 
-          <article class="tarjeta-info">
-            <p class="tarjeta-info__label">Progreso</p>
-            <strong class="tarjeta-info__valor" id="texto-progreso">0 / 81</strong>
-            <p class="tarjeta-info__detalle" id="texto-conflictos">Sin conflictos detectados.</p>
-          </article>
+            <button class="accion" id="boton-borrar" type="button" title="Borrar" aria-label="Borrar la celda seleccionada">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20H9l-5-5a2 2 0 0 1 0-2.8l7-7a2 2 0 0 1 2.8 0l5.2 5.2a2 2 0 0 1 0 2.8L12 20"/><line x1="18" y1="20" x2="9" y2="20"/></svg>
+              <span class="accion__texto">Borrar</span>
+            </button>
 
-          <article class="tarjeta-info tarjeta-info--tips">
-            <p class="tarjeta-info__label">Controles</p>
-            <p class="tarjeta-info__detalle">Click o toca una celda editable, usa el teclado numerico o los botones 1-9 y borra con 0, Delete o Borrar.</p>
-          </article>
+            <button class="accion" id="boton-notas" type="button" title="Modo borrador" aria-label="Modo borrador" aria-pressed="false">
+              <span class="accion__badge" id="badge-notas">OFF</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10-10a2.8 2.8 0 0 0-4-4L4 16z"/><line x1="13.5" y1="6.5" x2="17.5" y2="10.5"/></svg>
+              <span class="accion__texto">Borrador</span>
+            </button>
+
+            <button class="accion" id="boton-pista" type="button" title="Pista" aria-label="Revelar una celda">
+              <span class="accion__badge" id="badge-pistas">3</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5.9 1.2.9 1.9v.2h5.2v-.2c0-.7.3-1.4.9-1.9A6 6 0 0 0 12 3z"/></svg>
+              <span class="accion__texto">Pista</span>
+            </button>
+          </div>
+
+          <div class="numpad" id="numpad" role="group" aria-label="Teclado numerico">
+            <button class="numpad__tecla" data-valor="1" type="button">1<span class="numpad__restantes" data-restantes="1"></span></button>
+            <button class="numpad__tecla" data-valor="2" type="button">2<span class="numpad__restantes" data-restantes="2"></span></button>
+            <button class="numpad__tecla" data-valor="3" type="button">3<span class="numpad__restantes" data-restantes="3"></span></button>
+            <button class="numpad__tecla" data-valor="4" type="button">4<span class="numpad__restantes" data-restantes="4"></span></button>
+            <button class="numpad__tecla" data-valor="5" type="button">5<span class="numpad__restantes" data-restantes="5"></span></button>
+            <button class="numpad__tecla" data-valor="6" type="button">6<span class="numpad__restantes" data-restantes="6"></span></button>
+            <button class="numpad__tecla" data-valor="7" type="button">7<span class="numpad__restantes" data-restantes="7"></span></button>
+            <button class="numpad__tecla" data-valor="8" type="button">8<span class="numpad__restantes" data-restantes="8"></span></button>
+            <button class="numpad__tecla" data-valor="9" type="button">9<span class="numpad__restantes" data-restantes="9"></span></button>
+          </div>
         </aside>
 
         <section class="juego" aria-label="Tablero de Sudoku">
           <div class="tablero-wrap">
             <div class="tablero" id="tablero" role="grid" aria-label="Tablero de Sudoku 9 por 9"></div>
+            <div class="tablero__velo" id="velo-generando" hidden>
+              <span class="tablero__spinner" aria-hidden="true"></span>
+              Generando tablero...
+            </div>
           </div>
-
-          <section class="numpad" id="numpad" aria-label="Teclado numerico">
-            <button class="numpad__tecla" data-valor="1" type="button">1</button>
-            <button class="numpad__tecla" data-valor="2" type="button">2</button>
-            <button class="numpad__tecla" data-valor="3" type="button">3</button>
-            <button class="numpad__tecla" data-valor="4" type="button">4</button>
-            <button class="numpad__tecla" data-valor="5" type="button">5</button>
-            <button class="numpad__tecla" data-valor="6" type="button">6</button>
-            <button class="numpad__tecla" data-valor="7" type="button">7</button>
-            <button class="numpad__tecla" data-valor="8" type="button">8</button>
-            <button class="numpad__tecla" data-valor="9" type="button">9</button>
-            <button class="numpad__tecla numpad__tecla--borrar" data-valor="borrar" type="button">Borrar</button>
-          </section>
         </section>
-      </section>
+      </div>
+
+      <p class="sr-only" id="texto-estado" aria-live="polite"></p>
     </section>
   </main>
 
