@@ -1,4 +1,5 @@
 import { festejar } from '/shared/celebracion.js';
+import { habilitarCierreResultado } from '/shared/resultado.js';
 
 const MAXIMO_INTENTOS = 6;
 const PARAMETRO_PALABRA = 'w';
@@ -47,6 +48,7 @@ const estado = {
 inicializar();
 
 function inicializar() {
+  habilitarCierreResultado();
   enlazarEventos();
 
   const palabraDelLink = obtenerPalabraDesdeUrl();

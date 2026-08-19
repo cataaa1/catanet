@@ -9,6 +9,7 @@ import {
   obtenerRelacionCelda
 } from '/shared/sudoku.js';
 import { festejar } from '/shared/celebracion.js';
+import { habilitarCierreResultado } from '/shared/resultado.js';
 
 const TOTAL_PISTAS = 3;
 const REPETICIONES_POR_DIGITO = 9;
@@ -53,6 +54,7 @@ const estado = {
 inicializar();
 
 function inicializar() {
+  habilitarCierreResultado();
   enlazarEventos();
   iniciarNuevaPartida(estado.dificultad);
 }

@@ -1,5 +1,6 @@
 import { obtenerPalabraAleatoria, palabrasValidas } from '/shared/words.js';
 import { festejar } from '/shared/celebracion.js';
+import { habilitarCierreResultado } from '/shared/resultado.js';
 
 const LONGITUD_PALABRA = 5;
 const MAXIMO_INTENTOS = 6;
@@ -42,6 +43,7 @@ const estado = {
 inicializar();
 
 function inicializar() {
+  habilitarCierreResultado();
   construirTeclado();
   enlazarEventos();
   renderizarTodo();

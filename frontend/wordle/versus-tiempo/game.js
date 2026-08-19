@@ -1,4 +1,5 @@
 import { festejar } from '/shared/celebracion.js';
+import { habilitarCierreResultado } from '/shared/resultado.js';
 
 const SERVIDOR_URL = window.location.origin;
 const LONGITUD_PALABRA = 5;
@@ -57,6 +58,7 @@ const estadoCliente = {
 inicializar();
 
 function inicializar() {
+  habilitarCierreResultado();
   construirTeclado();
   leerSalaDesdeUrl();
   enlazarEventos();

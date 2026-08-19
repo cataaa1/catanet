@@ -57,6 +57,7 @@ CataNet/
     │   ├── words.js             ← palabras del lado cliente
     │   ├── sudoku.js            ← lógica compartida de Sudoku
     │   ├── celebracion.js       ← festejo al ganar (papel picado + pulso)
+    │   ├── resultado.js         ← cruz para cerrar el panel de resultado
     │   └── vendor/sudoku-lib.js ← librería externa de generación/solución
     ├── co-wordle/               ← Wordle cooperativo por turnos (online)
     ├── wordle/
@@ -82,6 +83,9 @@ CataNet/
    vacías válidas, porque los menús y tableros se dibujan antes de tener partida
 9. **Al ganar se festeja** — llamar a `festejar()` de `/shared/celebracion.js`,
    con una bandera `festejado` en el estado para que salga una sola vez por partida
+10. **El panel de resultado se puede cerrar** — llamar a `habilitarCierreResultado()`
+   de `/shared/resultado.js` en `inicializar()`. Requiere que el panel sea
+   `#panel-resultado` con una tarjeta `.resultado` adentro
 
 ## Cómo correr el proyecto localmente
 
