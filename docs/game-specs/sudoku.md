@@ -50,12 +50,28 @@ dificultad), y por eso la pantalla muestra "Generando tablero..." mientras traba
 
 ## Controles
 
+El panel de la izquierda tiene cuatro acciones arriba y el numpad de 3x3 abajo.
+
 - **Click o toque** sobre una celda editable para seleccionarla
 - **Teclas 1-9** o los botones del numpad para escribir
 - **0, Delete o Backspace** (o el botón "Borrar") para vaciar la celda
 - **Flechas** para mover la selección (con wrap-around en los bordes)
+- **Deshacer** (o `Ctrl+Z`) revierte jugada por jugada, incluidas las notas
+- **Borrador** (o la tecla `N`) alterna el modo de anotaciones
+- **Pista** revela una celda; hay tres por tablero. Deshacer una pista
+  devuelve el crédito
 - Las pistas iniciales son fijas: si se intenta escribirlas o borrarlas,
   aparece un aviso y no cambia nada
+
+### Modo borrador
+Con el borrador activo, cada dígito se agrega o se saca de las anotaciones de
+la celda, que se dibujan en una grilla de 3x3 dentro del casillero. Escribir un
+valor real borra las anotaciones de esa celda.
+
+### Numpad
+Cada tecla se apaga a gris cuando ese dígito ya aparece nueve veces en el
+tablero, para no tener que contarlos a mano. Con la tecla apagada no se puede
+escribir ese número.
 
 ## Reglas de la lógica
 

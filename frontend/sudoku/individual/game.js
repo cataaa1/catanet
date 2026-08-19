@@ -527,14 +527,8 @@ function crearNotasHtml(notas) {
 
 function renderizarControles() {
   elementos.numpad.querySelectorAll('[data-valor]').forEach((tecla) => {
-    const restantes = REPETICIONES_POR_DIGITO - contarDigito(tecla.dataset.valor);
-    const contador = tecla.querySelector('.numpad__restantes');
-
-    tecla.classList.toggle('numpad__tecla--completa', restantes <= 0);
-
-    if (contador) {
-      contador.textContent = restantes > 0 ? String(restantes) : '';
-    }
+    const completo = contarDigito(tecla.dataset.valor) >= REPETICIONES_POR_DIGITO;
+    tecla.classList.toggle('numpad__tecla--completa', completo);
   });
 
   elementos.botonNotas.classList.toggle('is-activa', estado.modoNotas);
