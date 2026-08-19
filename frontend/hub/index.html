@@ -278,46 +278,10 @@
       image-rendering: pixelated;
     }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 6px 12px;
-      border-radius: 999px;
-      letter-spacing: 0.3px;
-      white-space: nowrap;
-    }
 
-    .badge.live {
-      background: var(--mint);
-      color: var(--eggplant);
-    }
 
-    .badge.soon {
-      background: #f1eaef;
-      color: var(--plum);
-      border: 1px solid #e3d4df;
-    }
 
-    .live-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--plum);
-      position: relative;
-    }
 
-    .live-dot::after {
-      content: "";
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      background: var(--plum);
-      opacity: 0.5;
-      animation: pulse 1.6s ease-out infinite;
-    }
 
     .card h2 {
       font-size: 22px;
@@ -474,10 +438,6 @@
       }
     }
 
-    @keyframes pulse {
-      0% { transform: scale(0.6); opacity: 0.6; }
-      100% { transform: scale(2.4); opacity: 0; }
-    }
 
     @keyframes sheen {
       0% {
@@ -558,8 +518,6 @@
 
     function crearCardFamilia(familia) {
       const disponible = estaDisponible(familia);
-      const claseEstado = disponible ? 'live' : 'soon';
-      const textoEstado = disponible ? 'En vivo' : 'Proximamente';
       const accion = disponible
         ? `<a class="btn" href="${familia.ruta}">${familia.accion}<span class="arrow" aria-hidden="true">&rarr;</span></a>`
         : `<span class="placeholder">${familia.accion}</span>`;
@@ -570,7 +528,6 @@
             <div class="icon" aria-hidden="true">
               <img src="${familia.icono}" alt="">
             </div>
-            <span class="badge ${claseEstado}">${disponible ? '<span class="live-dot"></span>' : ''}${textoEstado}</span>
           </div>
           <h2>${familia.titulo}</h2>
           <p>${familia.descripcion}</p>

@@ -265,7 +265,6 @@
       image-rendering: pixelated;
     }
 
-    .badge,
     .meta-pill {
       display: inline-flex;
       align-items: center;
@@ -278,34 +277,9 @@
       white-space: nowrap;
     }
 
-    .badge.live {
-      background: var(--mint);
-      color: var(--eggplant);
-    }
 
-    .badge.soon {
-      background: #f1eaef;
-      color: var(--plum);
-      border: 1px solid #e3d4df;
-    }
 
-    .live-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--plum);
-      position: relative;
-    }
 
-    .live-dot::after {
-      content: "";
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      background: var(--plum);
-      opacity: 0.5;
-      animation: pulse 1.6s ease-out infinite;
-    }
 
     .card h2 {
       font-size: 21px;
@@ -420,10 +394,6 @@
       100% { transform: scale(1.08) translate3d(10px, -18px, 0); }
     }
 
-    @keyframes pulse {
-      0% { transform: scale(0.6); opacity: 0.6; }
-      100% { transform: scale(2.4); opacity: 0; }
-    }
 
     @keyframes sheen {
       0% { opacity: 0; transform: translateX(0) skewX(-24deg); }
@@ -493,7 +463,6 @@
         margin-bottom: 14px;
       }
 
-      .badge,
       .meta-pill {
         padding: 5px 10px;
         font-size: 11px;
@@ -611,8 +580,6 @@
 
     function crearCardModo(modo) {
       const disponible = estaDisponible(modo);
-      const claseEstado = disponible ? 'live' : 'soon';
-      const textoEstado = disponible ? 'En vivo' : 'Proximamente';
       const textoOnline = modo.online ? 'Online' : 'Local';
       const accion = disponible
         ? `<a class="btn" href="${modo.ruta}">${modo.accion}<span class="arrow" aria-hidden="true">&rarr;</span></a>`
@@ -624,7 +591,6 @@
             <div class="icon" aria-hidden="true">
               <img src="${modo.icono}" alt="">
             </div>
-            <span class="badge ${claseEstado}">${disponible ? '<span class="live-dot"></span>' : ''}${textoEstado}</span>
           </div>
           <h2>${modo.titulo}</h2>
           <p>${modo.descripcion}</p>
