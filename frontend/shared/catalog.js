@@ -13,8 +13,8 @@ export const familias = [
     titulo: 'Sudoku',
     descripcion: 'Tableros logicos para resolver en solitario, en colaboracion o con desafios por tiempo.',
     ruta: '/sudoku/',
-    estado: 'proximamente',
-    accion: 'Disponible pronto',
+    estado: 'en-vivo',
+    accion: 'Jugar',
     icono: '/hub/assets/logo-sudoku.png'
   },
   {
@@ -41,6 +41,19 @@ export const modos = [
     jugadores: '2 jugadores',
     online: true,
     icono: '/hub/assets/logo-wordle.png'
+  },
+  {
+    id: 'sudoku-individual',
+    familiaId: 'sudoku',
+    titulo: 'Sudoku individual',
+    descripcion: 'Elige dificultad y completa un tablero clasico de 9x9 a tu ritmo desde cualquier dispositivo.',
+    ruta: '/sudoku/individual/',
+    estado: 'en-vivo',
+    accion: 'Resolver',
+    tipo: 'solo',
+    jugadores: '1 jugador',
+    online: false,
+    icono: '/hub/assets/logo-sudoku.png'
   },
   {
     id: 'wordle-individual',

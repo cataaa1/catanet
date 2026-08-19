@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CataNet | Sudoku individual</title>
+  <meta
+    name="description"
+    content="Sudoku individual en CataNet con tres dificultades para resolver a tu ritmo desde desktop o mobile."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="fondo" aria-hidden="true">
+    <div class="fondo__gradiente"></div>
+    <div class="fondo__halo fondo__halo--uno"></div>
+    <div class="fondo__halo fondo__halo--dos"></div>
+    <div class="fondo__reticula"></div>
+  </div>
+
+  <main class="app">
+    <section class="panel">
+      <header class="juego-header">
+        <div class="juego-header__lado">
+          <a class="btn-volver" href="/sudoku/">&larr; Volver</a>
+        </div>
+        <div class="juego-header__centro">
+          <p class="eyebrow">Modo individual</p>
+          <h1>Sudoku</h1>
+        </div>
+        <div class="juego-header__lado juego-header__lado--derecha">
+          <button class="btn btn--secundario btn--chico" id="boton-nueva" type="button">Nuevo tablero</button>
+        </div>
+      </header>
+
+      <section class="configuracion" aria-label="Configuracion de partida">
+        <div class="dificultades" id="grupo-dificultades" role="group" aria-label="Elegir dificultad">
+          <button class="chip-dificultad" data-dificultad="facil" type="button">Facil</button>
+          <button class="chip-dificultad" data-dificultad="medio" type="button">Medio</button>
+          <button class="chip-dificultad" data-dificultad="dificil" type="button">Dificil</button>
+        </div>
+        <p class="estado" id="texto-estado" aria-live="polite"></p>
+      </section>
+
+      <section class="contenido">
+        <aside class="panel-info">
+          <article class="tarjeta-info">
+            <p class="tarjeta-info__label">Dificultad</p>
+            <strong class="tarjeta-info__valor" id="texto-dificultad">Medio</strong>
+            <p class="tarjeta-info__detalle" id="texto-dificultad-detalle"></p>
+          </article>
+
+          <article class="tarjeta-info">
+            <p class="tarjeta-info__label">Progreso</p>
+            <strong class="tarjeta-info__valor" id="texto-progreso">0 / 81</strong>
+            <p class="tarjeta-info__detalle" id="texto-conflictos">Sin conflictos detectados.</p>
+          </article>
+
+          <article class="tarjeta-info tarjeta-info--tips">
+            <p class="tarjeta-info__label">Controles</p>
+            <p class="tarjeta-info__detalle">Click o toca una celda editable, usa el teclado numerico o los botones 1-9 y borra con 0, Delete o Borrar.</p>
+          </article>
+        </aside>
+
+        <section class="juego" aria-label="Tablero de Sudoku">
+          <div class="tablero-wrap">
+            <div class="tablero" id="tablero" role="grid" aria-label="Tablero de Sudoku 9 por 9"></div>
+          </div>
+
+          <section class="numpad" id="numpad" aria-label="Teclado numerico">
+            <button class="numpad__tecla" data-valor="1" type="button">1</button>
+            <button class="numpad__tecla" data-valor="2" type="button">2</button>
+            <button class="numpad__tecla" data-valor="3" type="button">3</button>
+            <button class="numpad__tecla" data-valor="4" type="button">4</button>
+            <button class="numpad__tecla" data-valor="5" type="button">5</button>
+            <button class="numpad__tecla" data-valor="6" type="button">6</button>
+            <button class="numpad__tecla" data-valor="7" type="button">7</button>
+            <button class="numpad__tecla" data-valor="8" type="button">8</button>
+            <button class="numpad__tecla" data-valor="9" type="button">9</button>
+            <button class="numpad__tecla numpad__tecla--borrar" data-valor="borrar" type="button">Borrar</button>
+          </section>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <section class="resultado-modal" id="panel-resultado" hidden aria-labelledby="resultado-titulo" role="dialog" aria-modal="true">
+    <div class="resultado" role="document">
+      <p class="eyebrow">Tablero completado</p>
+      <h2 id="resultado-titulo">Sudoku resuelto</h2>
+      <p id="resultado-texto"></p>
+      <div class="resultado__acciones">
+        <button class="btn btn--primario" id="boton-reiniciar" type="button">Jugar otro</button>
+        <a class="btn btn--secundario" href="/sudoku/">Volver al menu</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/shared/vendor/sudoku-lib.js"></script>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

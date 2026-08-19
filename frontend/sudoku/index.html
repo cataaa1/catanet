@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CataNet | Wordle</title>
+  <title>CataNet | Sudoku</title>
   <meta
     name="description"
-    content="Elegi una version de Wordle en CataNet: cooperativa, individual, versus por tiempo o contra computadora."
+    content="Elegi una version de Sudoku en CataNet. Empeza con el modo individual y preparate para futuras variantes cooperativas y competitivas."
   >
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --mint: #c5ebc3;
-      --sage: #b7c8b5;
-      --mauve: #a790a5;
-      --plum: #875c74;
-      --eggplant: #54414e;
+      --sky: #dff4ff;
+      --foam: #cbe7ef;
+      --steel: #8ca4b8;
+      --ink: #213547;
+      --navy: #142433;
       --radius: 20px;
-      --sombra-suave: 0 4px 14px rgba(84, 65, 78, 0.06);
-      --sombra-hover-card: 0 28px 70px rgba(135, 92, 116, 0.34), 0 0 0 1px rgba(135, 92, 116, 0.36), 0 0 34px rgba(197, 235, 195, 0.34);
+      --sombra-suave: 0 4px 14px rgba(20, 36, 51, 0.08);
+      --sombra-hover-card: 0 28px 70px rgba(20, 36, 51, 0.28), 0 0 0 1px rgba(20, 36, 51, 0.24), 0 0 28px rgba(223, 244, 255, 0.3);
     }
 
     * {
@@ -38,9 +38,9 @@
       min-height: 100vh;
       font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-weight: 400;
-      color: var(--eggplant);
+      color: var(--ink);
       overflow-x: hidden;
-      background: #f4edf0;
+      background: #edf5fa;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -50,7 +50,7 @@
 
     a:focus-visible,
     button:focus-visible {
-      outline: 3px solid rgba(135, 92, 116, 0.35);
+      outline: 3px solid rgba(20, 36, 51, 0.22);
       outline-offset: 4px;
     }
 
@@ -71,25 +71,25 @@
 
     .bg-scene {
       background:
-        linear-gradient(180deg, rgba(255, 250, 246, 0.18) 0%, rgba(84, 65, 78, 0.16) 100%),
-        url("/hub/assets/menus/background-1.png") center center / cover no-repeat;
+        linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(20, 36, 51, 0.14) 100%),
+        url("/hub/assets/menus/background-2.png") center center / cover no-repeat;
       transform: scale(1.06);
-      filter: saturate(0.95) contrast(1.02) brightness(0.99);
+      filter: saturate(0.9) contrast(1.03) brightness(0.99);
       animation: escena-flota 12s ease-in-out infinite alternate;
     }
 
     .bg-overlay {
       background:
-        linear-gradient(180deg, rgba(244, 237, 240, 0.7) 0%, rgba(244, 237, 240, 0.2) 30%, rgba(244, 237, 240, 0.38) 100%),
-        radial-gradient(circle at 50% 18%, rgba(255, 251, 244, 0.5) 0%, rgba(255, 251, 244, 0) 62%);
+        linear-gradient(180deg, rgba(237, 245, 250, 0.72) 0%, rgba(237, 245, 250, 0.24) 30%, rgba(237, 245, 250, 0.34) 100%),
+        radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.54) 0%, rgba(255, 255, 255, 0) 62%);
     }
 
     .dots {
-      background-image: radial-gradient(circle, rgba(135, 92, 116, 0.12) 1px, transparent 1px);
+      background-image: radial-gradient(circle, rgba(20, 36, 51, 0.1) 1px, transparent 1px);
       background-size: 28px 28px;
       mask-image: radial-gradient(circle at center, black 30%, transparent 75%);
       -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 75%);
-      opacity: 0.5;
+      opacity: 0.4;
     }
 
     .wrap {
@@ -115,14 +115,14 @@
       gap: 8px;
       min-height: 38px;
       padding: 9px 16px;
-      border: 1px solid rgba(255, 255, 255, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.4);
       border-radius: 999px;
-      color: var(--eggplant);
-      background: rgba(255, 255, 255, 0.58);
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.62);
       text-decoration: none;
       font-size: 13px;
       font-weight: 500;
-      box-shadow: 0 8px 24px rgba(84, 65, 78, 0.1);
+      box-shadow: 0 8px 24px rgba(20, 36, 51, 0.08);
       backdrop-filter: blur(12px);
     }
 
@@ -138,12 +138,12 @@
       gap: 10px;
       padding: 8px 18px;
       background: rgba(255, 255, 255, 0.82);
-      border: 1px solid rgba(197, 235, 195, 0.9);
+      border: 1px solid rgba(203, 231, 239, 0.92);
       border-radius: 999px;
-      box-shadow: 0 4px 12px rgba(84, 65, 78, 0.08);
+      box-shadow: 0 4px 12px rgba(20, 36, 51, 0.06);
       backdrop-filter: blur(10px);
       font-weight: 500;
-      color: var(--plum);
+      color: var(--navy);
       font-size: 14px;
       letter-spacing: 0.5px;
       margin-bottom: 16px;
@@ -153,23 +153,23 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--plum);
-      box-shadow: 0 0 0 4px rgba(135, 92, 116, 0.2);
+      background: var(--navy);
+      box-shadow: 0 0 0 4px rgba(20, 36, 51, 0.14);
       animation: heartbeat 1.6s ease-in-out infinite;
     }
 
     h1 {
       font-size: clamp(40px, 5.4vw, 62px);
       font-weight: 500;
-      color: var(--eggplant);
+      color: var(--navy);
       letter-spacing: -0.035em;
       line-height: 1.02;
       margin-bottom: 12px;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.32);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.42);
     }
 
     .accent {
-      background: linear-gradient(120deg, var(--plum), var(--mauve));
+      background: linear-gradient(120deg, #1e4f75, #3d6d91);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -177,7 +177,7 @@
 
     .subtitle {
       font-size: 17px;
-      color: rgba(84, 65, 78, 0.84);
+      color: rgba(33, 53, 71, 0.84);
       max-width: 650px;
       margin: 0 auto;
       line-height: 1.6;
@@ -197,7 +197,7 @@
       flex-direction: column;
       min-height: 0;
       background: rgba(255, 255, 255, 0.84);
-      border: 1px solid rgba(183, 200, 181, 0.88);
+      border: 1px solid rgba(203, 231, 239, 0.88);
       border-radius: var(--radius);
       padding: 22px;
       box-shadow: var(--sombra-suave);
@@ -218,7 +218,7 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at top right, rgba(197, 235, 195, 0.68), transparent 58%),
+        radial-gradient(circle at top right, rgba(223, 244, 255, 0.74), transparent 58%),
         linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
       opacity: 0;
       pointer-events: none;
@@ -231,7 +231,7 @@
     .card:hover,
     .card:focus-within {
       background: rgba(255, 255, 255, 0.92);
-      border-color: rgba(135, 92, 116, 0.58);
+      border-color: rgba(30, 79, 117, 0.46);
       box-shadow: var(--sombra-hover-card);
     }
 
@@ -279,21 +279,21 @@
     }
 
     .badge.live {
-      background: var(--mint);
-      color: var(--eggplant);
+      background: var(--sky);
+      color: var(--ink);
     }
 
     .badge.soon {
-      background: #f1eaef;
-      color: var(--plum);
-      border: 1px solid #e3d4df;
+      background: #eff5f9;
+      color: #3d6d91;
+      border: 1px solid #d3e4ee;
     }
 
     .live-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--plum);
+      background: #2f648b;
       position: relative;
     }
 
@@ -302,7 +302,7 @@
       position: absolute;
       inset: -4px;
       border-radius: 50%;
-      background: var(--plum);
+      background: #2f648b;
       opacity: 0.5;
       animation: pulse 1.6s ease-out infinite;
     }
@@ -310,7 +310,7 @@
     .card h2 {
       font-size: 21px;
       font-weight: 500;
-      color: var(--eggplant);
+      color: var(--navy);
       margin-bottom: 8px;
       position: relative;
       z-index: 1;
@@ -318,7 +318,7 @@
 
     .card p {
       font-size: 14px;
-      color: var(--mauve);
+      color: var(--steel);
       line-height: 1.5;
       margin-bottom: 14px;
       position: relative;
@@ -335,9 +335,9 @@
     }
 
     .meta-pill {
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(135, 92, 116, 0.14);
-      color: var(--eggplant);
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(20, 36, 51, 0.1);
+      color: var(--ink);
     }
 
     .card-footer {
@@ -351,13 +351,13 @@
       align-items: center;
       gap: 8px;
       padding: 12px 22px;
-      background: linear-gradient(135deg, var(--plum), var(--eggplant));
+      background: linear-gradient(135deg, #2f648b, var(--navy));
       color: #ffffff;
       text-decoration: none;
       border-radius: 999px;
       font-weight: 500;
       font-size: 14.5px;
-      box-shadow: 0 8px 18px rgba(135, 92, 116, 0.35);
+      box-shadow: 0 8px 18px rgba(20, 36, 51, 0.22);
       position: relative;
       overflow: hidden;
       isolation: isolate;
@@ -377,7 +377,7 @@
 
     .btn:hover,
     .btn:focus-visible {
-      box-shadow: 0 12px 28px rgba(135, 92, 116, 0.42);
+      box-shadow: 0 12px 28px rgba(20, 36, 51, 0.28);
     }
 
     .btn:hover::before,
@@ -389,7 +389,7 @@
       display: inline-flex;
       align-items: center;
       font-size: 13px;
-      color: var(--mauve);
+      color: var(--steel);
       font-style: italic;
       opacity: 0.88;
     }
@@ -399,7 +399,7 @@
       margin-top: auto;
       padding-top: 20px;
       font-size: 13px;
-      color: rgba(84, 65, 78, 0.74);
+      color: rgba(33, 53, 71, 0.7);
       opacity: 0.85;
       text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
       animation: rise 0.8s ease-out 0.45s both;
@@ -509,33 +509,6 @@
       }
     }
 
-    @media (max-height: 820px) and (min-width: 761px) {
-      .wrap {
-        padding-top: 14px;
-        padding-bottom: 22px;
-      }
-
-      .hero {
-        margin-bottom: 18px;
-      }
-
-      .logo {
-        margin-bottom: 10px;
-      }
-
-      h1 {
-        font-size: clamp(36px, 4.8vw, 46px);
-      }
-
-      .card {
-        padding: 17px;
-      }
-
-      .footer {
-        padding-top: 12px;
-      }
-    }
-
     @media (max-width: 760px) {
       body {
         height: auto;
@@ -588,13 +561,13 @@
 
     <header class="hero">
       <span class="logo"><span class="logo-dot"></span>CataNet</span>
-      <h1>Versiones de <span class="accent">Wordle</span></h1>
+      <h1>Versiones de <span class="accent">Sudoku</span></h1>
       <p class="subtitle">
-        Elegi como queres jugar: cooperativo por turnos, individual, versus por tiempo, custom o contra la computadora.
+        Arranca con el modo individual y luego expandimos la familia con variantes cooperativas, versus y tableros compartidos.
       </p>
     </header>
 
-    <main class="grid" id="catalogo-modos" aria-label="Versiones de Wordle"></main>
+    <main class="grid" id="catalogo-modos" aria-label="Versiones de Sudoku"></main>
 
     <footer class="footer">&copy; CataNet &middot; Hecho con carino</footer>
   </div>
@@ -603,9 +576,9 @@
     import { estaDisponible, obtenerModosPorFamilia } from '/shared/catalog.js';
 
     const grillaModos = document.getElementById('catalogo-modos');
-    const modosWordle = obtenerModosPorFamilia('wordle');
+    const modosSudoku = obtenerModosPorFamilia('sudoku');
 
-    grillaModos.innerHTML = modosWordle
+    grillaModos.innerHTML = modosSudoku
       .map((modo) => crearCardModo(modo))
       .join('');
 
