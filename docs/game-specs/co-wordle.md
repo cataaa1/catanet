@@ -1,5 +1,12 @@
 # Co-Wordle — Especificación del juego
 
+> ATENCIÓN: este documento está desactualizado. Describe una versión simultánea
+> y competitiva (un tablero por jugador, gana quien adivina primero), pero lo que
+> se implementó en `backend/rooms.js` es **cooperativo por turnos**: los dos
+> jugadores comparten un mismo tablero de seis intentos y alternan jugadas.
+> Las secciones de verificación de colores, palabras y animaciones siguen siendo
+> válidas. Falta reescribir el flujo y las pantallas. Ver `docs/roadmap.md`.
+
 ## Qué es
 Versión multijugador en tiempo real del Wordle clásico.
 Dos jugadores reciben la misma palabra secreta y compiten para adivinarla primero.

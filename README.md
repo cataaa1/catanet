@@ -1,13 +1,23 @@
 # CataNet 🎮
 
-Hub de juegos online para jugar con amigos via link, sin registro.
+Hub de juegos online para jugar con amigos vía link, sin registro.
 
 ## Juegos disponibles
-- **Co-Wordle** — Wordle en tiempo real contra un amigo
 
-## Juegos en camino
-- Sudoku colaborativo
+### Wordle
+- **Individual** — la experiencia clásica, a tu ritmo
+- **Custom** — creás una palabra y compartís un link para que otra persona la adivine
+- **Co-Wordle por turnos** — dos jugadores comparten seis intentos, en tiempo real
+- **Versus por tiempo** — 90 segundos para completar la mayor cantidad de Wordles
+
+### Sudoku
+- **Individual** — tableros de 9x9 en tres dificultades
+
+## En camino
+- Sudoku cooperativo y versus
 - Ajedrez online
+
+Ver [docs/roadmap.md](docs/roadmap.md) para el estado detallado.
 
 ## Cómo correr el proyecto
 
@@ -27,12 +37,15 @@ npm run dev   # con auto-reload (desarrollo)
 npm start     # sin auto-reload (producción)
 ```
 
-El servidor queda en `http://localhost:3000`
-
 ### Abrir el frontend
 
-Abrí `frontend/hub/index.html` en el navegador,
-o usá la extensión **Live Server** de VS Code.
+Entrá a **http://localhost:3000** — Express sirve el hub y todos los juegos.
+
+> No abras los `index.html` con doble click. El frontend usa módulos ES con rutas
+> absolutas (`/shared/catalog.js`) que sólo funcionan si la página viene del servidor.
+
+> Ojo: el `package.json` está en `backend/`, no en la raíz. Si corrés `npm run dev`
+> desde la raíz vas a ver un error `ENOENT ... package.json`.
 
 ## Estructura del proyecto
 
@@ -44,23 +57,23 @@ CataNet/
 ├── docs/
 │   ├── design-tokens.md   ← colores y componentes de diseño
 │   ├── architecture.md    ← cómo funciona el backend
-│   └── game-specs/
-│       └── co-wordle.md   ← reglas del Co-Wordle
+│   ├── roadmap.md         ← qué falta para darlo por completo
+│   └── game-specs/        ← reglas de cada juego
 ├── backend/
 │   ├── package.json
-│   ├── server.js          ← Express + Socket.io
-│   ├── rooms.js           ← manejo de salas
+│   ├── server.js          ← Express + Socket.io + archivos estáticos
+│   ├── rooms.js           ← salas del Co-Wordle
+│   ├── versusRooms.js     ← salas del Versus por tiempo
 │   └── words.js           ← palabras del juego
 └── frontend/
-    ├── hub/
-    │   └── index.html     ← menú principal
-    └── co-wordle/
-        ├── index.html
-        ├── style.css
-        └── game.js
+    ├── hub/               ← menú principal
+    ├── shared/            ← catálogo de juegos y lógica compartida
+    ├── co-wordle/
+    ├── wordle/            ← menú + individual + custom + versus-tiempo
+    └── sudoku/            ← menú + individual
 ```
 
 ## Stack
-- **Frontend**: HTML + CSS + JS vanilla
+- **Frontend**: HTML + CSS + JS vanilla, sin bundler
 - **Backend**: Node.js + Express + Socket.io
-- **Deploy**: Vercel (frontend) + Railway (backend)
+- **Deploy**: pendiente — un solo servicio, con soporte WebSocket
