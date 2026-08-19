@@ -1,4 +1,5 @@
 import { obtenerPalabraAleatoria, palabrasValidas } from '/shared/words.js';
+import { festejar } from '/shared/celebracion.js';
 
 const LONGITUD_PALABRA = 5;
 const MAXIMO_INTENTOS = 6;
@@ -33,6 +34,7 @@ const estado = {
   intentoActual: '',
   historialIntentos: [],
   fase: 'jugando',
+  festejado: false,
   palabrasValidas,
   toastTimeout: null
 };
@@ -189,6 +191,7 @@ function reiniciarPartida() {
   estado.intentoActual = '';
   estado.historialIntentos = [];
   estado.fase = 'jugando';
+  estado.festejado = false;
   elementos.panelResultado.hidden = true;
   elementos.teclado.hidden = false;
   renderizarTodo();
@@ -314,6 +317,7 @@ function renderizarResultado() {
   if (estado.fase === 'victoria') {
     elementos.resultadoTitulo.textContent = 'Ganaste';
     elementos.resultadoTexto.textContent = `Descubriste ${estado.palabraSecreta} en ${estado.historialIntentos.length} intento${estado.historialIntentos.length === 1 ? '' : 's'}.`;
+    lanzarFestejoUnaVez();
   } else if (estado.fase === 'derrota') {
     elementos.resultadoTitulo.textContent = 'Se acabaron los intentos';
     elementos.resultadoTexto.textContent = `La palabra era ${estado.palabraSecreta}. Podes probar con una nueva palabra.`;
@@ -323,6 +327,16 @@ function renderizarResultado() {
   }
 
   elementos.panelResultado.hidden = false;
+}
+
+// El festejo se dispara una sola vez por partida ganada
+function lanzarFestejoUnaVez() {
+  if (estado.festejado) {
+    return;
+  }
+
+  estado.festejado = true;
+  festejar();
 }
 
 function calcularEstadoTeclas() {

@@ -8,6 +8,7 @@ import {
   obtenerDificultadSudoku,
   obtenerRelacionCelda
 } from '/shared/sudoku.js';
+import { festejar } from '/shared/celebracion.js';
 
 const TOTAL_PISTAS = 3;
 const REPETICIONES_POR_DIGITO = 9;
@@ -44,6 +45,7 @@ const estado = {
   modoNotas: false,
   pistasRestantes: TOTAL_PISTAS,
   fase: 'jugando',
+  festejado: false,
   generando: false,
   toastTimeout: null
 };
@@ -96,6 +98,7 @@ async function iniciarNuevaPartida(dificultadId) {
     estado.modoNotas = false;
     estado.pistasRestantes = TOTAL_PISTAS;
     estado.conflictos = new Set();
+    estado.festejado = false;
     estado.celdaSeleccionada = buscarPrimeraEditable();
     estado.fase = 'jugando';
     elementos.panelResultado.hidden = true;
@@ -376,9 +379,20 @@ function sincronizarEstadoPartida() {
     estado.fase = 'ganado';
     elementos.resultadoTexto.textContent = `Completaste el tablero en dificultad ${obtenerDificultadSudoku(estado.dificultad).etiqueta.toLowerCase()}.`;
     elementos.panelResultado.hidden = false;
+    lanzarFestejoUnaVez();
   }
 
   renderizarTodo();
+}
+
+// El festejo se dispara una sola vez por tablero resuelto
+function lanzarFestejoUnaVez() {
+  if (estado.festejado) {
+    return;
+  }
+
+  estado.festejado = true;
+  festejar();
 }
 
 function renderizarTodo() {

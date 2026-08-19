@@ -1,3 +1,5 @@
+import { festejar } from '/shared/celebracion.js';
+
 const SERVIDOR_URL = window.location.origin;
 const LONGITUD_PALABRA = 5;
 const MAXIMO_INTENTOS = 6;
@@ -48,7 +50,8 @@ const estadoCliente = {
   unionAutomaticaPendiente: false,
   toastTimeout: null,
   intervaloReloj: null,
-  relojBase: null
+  relojBase: null,
+  festejado: false
 };
 
 inicializar();
@@ -127,6 +130,7 @@ function enlazarSocket() {
     aplicarEstadoPartida(estado);
     estadoCliente.unionAutomaticaPendiente = false;
     estadoCliente.intentoActual = '';
+    estadoCliente.festejado = false;
     mostrarPanelJuego();
     elementos.panelResultado.hidden = true;
     iniciarReloj();
@@ -512,12 +516,23 @@ function renderizarResultado() {
   } else if (partida.ganador === socket.id) {
     elementos.resultadoTitulo.textContent = 'Ganaste';
     elementos.resultadoTexto.textContent = `Resolviste ${miPuntaje} palabra${miPuntaje === 1 ? '' : 's'} contra ${puntajeRival} de tu rival.`;
+    lanzarFestejoUnaVez();
   } else {
     elementos.resultadoTitulo.textContent = 'Gano tu rival';
     elementos.resultadoTexto.textContent = `Resultado final: ${miPuntaje} a ${puntajeRival}. Pedi revancha y lo damos vuelta.`;
   }
 
   elementos.panelResultado.hidden = false;
+}
+
+// El festejo se dispara una sola vez por partida ganada
+function lanzarFestejoUnaVez() {
+  if (estadoCliente.festejado) {
+    return;
+  }
+
+  estadoCliente.festejado = true;
+  festejar();
 }
 
 function calcularEstadoTeclas() {

@@ -56,6 +56,7 @@ CataNet/
     │   ├── catalog.js           ← familias y modos (fuente de verdad de los menús)
     │   ├── words.js             ← palabras del lado cliente
     │   ├── sudoku.js            ← lógica compartida de Sudoku
+    │   ├── celebracion.js       ← festejo al ganar (papel picado + pulso)
     │   └── vendor/sudoku-lib.js ← librería externa de generación/solución
     ├── co-wordle/               ← Wordle cooperativo por turnos (online)
     ├── wordle/
@@ -79,6 +80,8 @@ CataNet/
 7. **Los modos nuevos se declaran en `catalog.js`** — no hardcodear tarjetas en los menús
 8. **Renderizar sin datos no debe romper** — inicializar el estado con estructuras
    vacías válidas, porque los menús y tableros se dibujan antes de tener partida
+9. **Al ganar se festeja** — llamar a `festejar()` de `/shared/celebracion.js`,
+   con una bandera `festejado` en el estado para que salga una sola vez por partida
 
 ## Cómo correr el proyecto localmente
 

@@ -1,3 +1,5 @@
+import { festejar } from '/shared/celebracion.js';
+
 const SERVIDOR_URL = window.location.origin;
 const LONGITUD_PALABRA_POR_DEFECTO = 5;
 const MAXIMO_INTENTOS_POR_DEFECTO = 6;
@@ -47,7 +49,8 @@ const estadoCliente = {
   tipeoOponente: '',
   resultadoFinal: null,
   toastTimeout: null,
-  unionAutomaticaPendiente: false
+  unionAutomaticaPendiente: false,
+  festejado: false
 };
 
 inicializar();
@@ -121,6 +124,7 @@ function enlazarEventos() {
     estadoCliente.estadoPartida = estado;
     estadoCliente.resultadoFinal = null;
     estadoCliente.tipeoOponente = '';
+    estadoCliente.festejado = false;
 
     if (!estadoCliente.linkCompartir && estadoCliente.salaId) {
       estadoCliente.linkCompartir = construirLinkCompartir(estadoCliente.salaId);
@@ -563,12 +567,23 @@ function renderizarResultado() {
   if (estado.resultado === 'victoria' || resultado.resultado === 'victoria') {
     elementos.resultadoTitulo.textContent = 'Ganaron la partida';
     elementos.resultadoTexto.textContent = `Descubrieron la palabra ${palabra} antes de agotar los intentos.`;
+    lanzarFestejoUnaVez();
   } else {
     elementos.resultadoTitulo.textContent = 'Se acabo la ronda';
     elementos.resultadoTexto.textContent = `La palabra era ${palabra}. Si quieren, pueden jugar una revancha.`;
   }
 
   elementos.panelResultado.hidden = false;
+}
+
+// El festejo se dispara una sola vez por partida ganada
+function lanzarFestejoUnaVez() {
+  if (estadoCliente.festejado) {
+    return;
+  }
+
+  estadoCliente.festejado = true;
+  festejar();
 }
 
 function calcularEstadoTeclas() {
