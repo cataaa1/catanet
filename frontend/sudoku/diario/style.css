@@ -100,3 +100,53 @@
   color: var(--acento);
   font-size: 18px;
 }
+
+/* --- Modo borrador --- */
+
+.modo-borrador {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(223, 244, 255, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--texto-claro);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.modo-borrador svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.modo-borrador__texto {
+  flex: 1;
+  text-align: left;
+}
+
+.modo-borrador__estado {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.modo-borrador.is-activa {
+  background: rgba(123, 208, 255, 0.28);
+  border-color: var(--acento-borde);
+}
+
+.modo-borrador.is-activa .modo-borrador__estado {
+  background: var(--acento);
+  color: #0b1724;
+}

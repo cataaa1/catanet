@@ -67,6 +67,11 @@
             <button class="numpad__tecla" data-valor="9" type="button">9</button>
           </div>
 
+          <button class="modo-borrador" id="boton-borrador" type="button" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10-10a2.8 2.8 0 0 0-4-4L4 16z"/><line x1="13.5" y1="6.5" x2="17.5" y2="10.5"/></svg>
+            <span class="modo-borrador__texto">Borrador</span>
+            <span class="modo-borrador__estado" id="estado-borrador">OFF</span>
+          </button>
           <button class="btn btn--secundario btn--chico" id="boton-borrar" type="button">Borrar celda</button>
         </aside>
 
@@ -97,7 +102,8 @@
       <ul class="reglas-lista">
         <li>Completa la grilla con los digitos del 1 al 9, sin repetir ninguno en la misma fila, columna ni bloque de 3x3.</li>
         <li>Es de dificultad <strong>experto</strong>: arranca sin ninguna jugada obvia, hay que cruzar datos desde la primera lectura.</li>
-        <li>No hay pistas ni deshacer, a proposito: si todos resuelven el mismo tablero sin ayudas, los tiempos se pueden comparar.</li>
+        <li>Tenes <strong>borrador</strong> para anotar los candidatos de cada celda sin escribirlos en firme. Se prende con el boton o con la tecla N.</li>
+        <li>No hay pistas ni deshacer, a proposito: si todos resuelven el mismo tablero sin esas ayudas, los tiempos se pueden comparar.</li>
         <li>Las celdas repetidas se marcan en rojo mientras jugas.</li>
       </ul>
     </div>

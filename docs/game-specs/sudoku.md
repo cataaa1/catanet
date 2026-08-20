@@ -147,9 +147,15 @@ navegador, así que lo genera el servidor **una vez por día** y lo cachea:
 Usa la dificultad `experto`: 28 pistas, sin ninguna jugada obvia de entrada
 (`maxSingles: 0`) y con un promedio alto de candidatos por celda.
 
-### Sin ayudas, a propósito
-No tiene pistas, borrador ni deshacer. Si la gracia es que todos resuelvan el
-mismo tablero, las ayudas arruinan la comparación de tiempos.
+### Qué ayudas tiene y cuáles no
+Tiene **borrador**, para anotar los candidatos de una celda sin escribirlos en
+firme. No tiene pistas ni deshacer.
+
+La diferencia no es caprichosa: una pista te da información que no tenías y el
+deshacer te saca el riesgo de equivocarte, así que las dos rompen la comparación
+de tiempos. El borrador no te dice nada nuevo — sólo te deja anotar tu propio
+razonamiento en vez de sostenerlo de memoria, que es lo que hace cualquiera con
+un sudoku de papel y un lápiz.
 
 ## Modo carrera (online)
 

@@ -1,7 +1,8 @@
 // Sudoku diario: el mismo tablero para todo el mundo, generado en el servidor.
 //
-// A proposito no tiene pistas, borrador ni deshacer: si la idea es comparar
-// tiempos sobre el mismo tablero, las ayudas arruinan la comparacion.
+// A proposito no tiene pistas ni deshacer: si la idea es comparar tiempos sobre
+// el mismo tablero, esas ayudas arruinan la comparacion. El borrador si esta,
+// porque no te dice nada que no supieras: solo te evita sostenerlo de memoria.
 import {
   actualizarCelda,
   contarCeldasLlenas,
@@ -28,6 +29,8 @@ const elementos = {
   textoEstado: document.getElementById('texto-estado'),
   numpad: document.getElementById('numpad'),
   botonBorrar: document.getElementById('boton-borrar'),
+  botonBorrador: document.getElementById('boton-borrador'),
+  estadoBorrador: document.getElementById('estado-borrador'),
   botonAyuda: document.getElementById('boton-ayuda'),
   botonCerrarAyuda: document.getElementById('boton-cerrar-ayuda'),
   panelAyuda: document.getElementById('panel-ayuda'),
@@ -42,6 +45,8 @@ const estado = {
   tableroActual: crearTableroVacio(),
   tableroResuelto: crearTableroVacio(),
   celdaSeleccionada: null,
+  notas: crearNotasVacias(),
+  modoBorrador: false,
   conflictos: new Set(),
   listo: false,
   resuelto: false,
@@ -70,6 +75,7 @@ function enlazarEventos() {
     }
   });
   elementos.botonBorrar.addEventListener('click', () => escribir(''));
+  elementos.botonBorrador.addEventListener('click', alternarBorrador);
 
   elementos.botonAyuda.addEventListener('click', () => {
     elementos.panelAyuda.hidden = false;
@@ -162,6 +168,12 @@ function manejarTeclado(evento) {
     return;
   }
 
+  if (evento.key.toLowerCase() === 'n') {
+    evento.preventDefault();
+    alternarBorrador();
+    return;
+  }
+
   if (evento.key.startsWith('Arrow')) {
     evento.preventDefault();
     moverSeleccion(evento.key);
@@ -180,7 +192,17 @@ function escribir(valor) {
     return;
   }
 
+  // En modo borrador el digito va a las anotaciones y la celda queda vacia
+  if (estado.modoBorrador && valor) {
+    anotar(fila, columna, valor);
+    estado.tableroActual = actualizarCelda(estado.tableroActual, fila, columna, '');
+    estado.conflictos = obtenerConflictos(estado.tableroActual);
+    renderizarTodo();
+    return;
+  }
+
   estado.tableroActual = actualizarCelda(estado.tableroActual, fila, columna, valor);
+  estado.notas[fila][columna] = [];
   estado.conflictos = obtenerConflictos(estado.tableroActual);
 
   if (!estado.conflictos.size && estaSudokuResuelto(estado.tableroActual, estado.tableroResuelto)) {
@@ -223,6 +245,42 @@ function terminar() {
     estado.festejado = true;
     festejar();
   }
+}
+
+
+// El borrador no es una ayuda: no te dice nada que no supieras, solo te deja
+// anotar tu propio razonamiento en vez de sostenerlo de memoria.
+function alternarBorrador() {
+  estado.modoBorrador = !estado.modoBorrador;
+  elementos.botonBorrador.classList.toggle('is-activa', estado.modoBorrador);
+  elementos.botonBorrador.setAttribute('aria-pressed', estado.modoBorrador ? 'true' : 'false');
+  elementos.estadoBorrador.textContent = estado.modoBorrador ? 'ON' : 'OFF';
+}
+
+function anotar(fila, columna, valor) {
+  const anotadas = estado.notas[fila][columna];
+
+  estado.notas[fila][columna] = anotadas.includes(valor)
+    ? anotadas.filter((nota) => nota !== valor)
+    : [...anotadas, valor].sort();
+}
+
+function crearNotasVacias() {
+  return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => []));
+}
+
+function dibujarNotas(notas) {
+  if (!notas.length) {
+    return '';
+  }
+
+  const celdas = Array.from({ length: 9 }, (_, indice) => {
+    const digito = String(indice + 1);
+
+    return `<span class="celda__nota">${notas.includes(digito) ? digito : ''}</span>`;
+  }).join('');
+
+  return `<span class="celda__notas">${celdas}</span>`;
 }
 
 function renderizarTodo() {
@@ -271,7 +329,7 @@ function renderizarTablero() {
       }
 
       return `<button type="button" class="${clases.join(' ')}" data-fila="${fila}" data-columna="${columna}"
-        aria-label="Fila ${fila + 1}, columna ${columna + 1}, ${valor || 'vacia'}">${valor || ''}</button>`;
+        aria-label="Fila ${fila + 1}, columna ${columna + 1}, ${valor || 'vacia'}">${valor || dibujarNotas(estado.notas[fila][columna])}</button>`;
     }).join('')
   )).join('');
 }

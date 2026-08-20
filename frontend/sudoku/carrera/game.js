@@ -39,6 +39,8 @@ const elementos = {
   textoVelo: document.getElementById('texto-velo'),
   numpad: document.getElementById('numpad'),
   botonBorrar: document.getElementById('boton-borrar'),
+  botonBorrador: document.getElementById('boton-borrador'),
+  estadoBorrador: document.getElementById('estado-borrador'),
   resultadoTitulo: document.getElementById('resultado-titulo'),
   resultadoTexto: document.getElementById('resultado-texto'),
   toast: document.getElementById('toast')
@@ -52,6 +54,8 @@ const estado = {
   tableroInicial: crearTableroVacio(),
   tableroActual: crearTableroVacio(),
   celdaSeleccionada: null,
+  notas: crearNotasVacias(),
+  modoBorrador: false,
   conflictos: new Set(),
   festejado: false,
   toastTimeout: null
@@ -124,6 +128,7 @@ function enlazarEventos() {
     }
   });
   elementos.botonBorrar.addEventListener('click', () => jugar(''));
+  elementos.botonBorrador.addEventListener('click', alternarBorrador);
 
   document.addEventListener('keydown', (evento) => {
     if (/^[1-9]$/.test(evento.key)) {
@@ -135,6 +140,12 @@ function enlazarEventos() {
     if (evento.key === 'Backspace' || evento.key === 'Delete' || evento.key === '0') {
       evento.preventDefault();
       jugar('');
+      return;
+    }
+
+    if (evento.key.toLowerCase() === 'n') {
+      evento.preventDefault();
+      alternarBorrador();
       return;
     }
 
@@ -161,6 +172,7 @@ function enlazarSocket() {
 
   socket.on('sudoku-partida-iniciada', ({ estado: nuevo }) => {
     estado.festejado = false;
+    estado.notas = crearNotasVacias();
     elementos.panelResultado.hidden = true;
     mostrarPanelJuego();
     aplicarEstado(nuevo);
@@ -243,6 +255,42 @@ function aplicarEstado(nuevo) {
   });
 }
 
+
+// El borrador no es una ayuda: no te dice nada que no supieras, solo te deja
+// anotar tu propio razonamiento en vez de sostenerlo de memoria.
+function alternarBorrador() {
+  estado.modoBorrador = !estado.modoBorrador;
+  elementos.botonBorrador.classList.toggle('is-activa', estado.modoBorrador);
+  elementos.botonBorrador.setAttribute('aria-pressed', estado.modoBorrador ? 'true' : 'false');
+  elementos.estadoBorrador.textContent = estado.modoBorrador ? 'ON' : 'OFF';
+}
+
+function anotar(fila, columna, valor) {
+  const anotadas = estado.notas[fila][columna];
+
+  estado.notas[fila][columna] = anotadas.includes(valor)
+    ? anotadas.filter((nota) => nota !== valor)
+    : [...anotadas, valor].sort();
+}
+
+function crearNotasVacias() {
+  return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => []));
+}
+
+function dibujarNotas(notas) {
+  if (!notas.length) {
+    return '';
+  }
+
+  const celdas = Array.from({ length: 9 }, (_, indice) => {
+    const digito = String(indice + 1);
+
+    return `<span class="celda__nota">${notas.includes(digito) ? digito : ''}</span>`;
+  }).join('');
+
+  return `<span class="celda__notas">${celdas}</span>`;
+}
+
 function renderizarVelo(nuevo) {
   if (nuevo.fase === 'esperando') {
     elementos.velo.hidden = false;
@@ -290,8 +338,16 @@ function jugar(valor) {
     return;
   }
 
+  // Las anotaciones son cosa de cada quien: no viajan al servidor
+  if (estado.modoBorrador && valor) {
+    anotar(fila, columna, valor);
+    renderizarTablero();
+    return;
+  }
+
   // Pintamos al toque y el servidor confirma con el estado que vuelve
   estado.tableroActual[fila][columna] = /^[1-9]$/.test(valor) ? valor : '';
+  estado.notas[fila][columna] = [];
   estado.conflictos = obtenerConflictos(estado.tableroActual);
   renderizarTablero();
 
@@ -376,7 +432,7 @@ function renderizarTablero() {
       }
 
       return `<button type="button" class="${clases.join(' ')}" data-fila="${fila}" data-columna="${columna}"
-        aria-label="Fila ${fila + 1}, columna ${columna + 1}, ${valor || 'vacia'}">${valor || ''}</button>`;
+        aria-label="Fila ${fila + 1}, columna ${columna + 1}, ${valor || 'vacia'}">${valor || dibujarNotas(estado.notas[fila][columna])}</button>`;
     }).join('')
   )).join('');
 }
