@@ -15,7 +15,6 @@ Hub de juegos online para jugar con amigos vía link, sin registro.
 
 ## En camino
 - Sudoku cooperativo y versus
-- Ajedrez online
 
 Ver [docs/roadmap.md](docs/roadmap.md) para el estado detallado.
 

@@ -25,15 +25,6 @@ export const familias = [
     estado: 'en-vivo',
     accion: 'Jugar',
     icono: '/hub/assets/logo-buscaminas.png'
-  },
-  {
-    id: 'ajedrez',
-    titulo: 'Ajedrez',
-    descripcion: 'Partidas rapidas, salas privadas y modos contra computadora para practicar jugadas.',
-    ruta: '/ajedrez/',
-    estado: 'proximamente',
-    accion: 'Disponible pronto',
-    icono: '/hub/assets/logo-ajedrez.png'
   }
 ];
 

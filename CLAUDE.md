@@ -2,7 +2,7 @@
 
 ## Qué es este proyecto
 Hub de juegos online para jugar con amigos vía link compartido, sin registro.
-Cada juego es una **familia** (Wordle, Sudoku, Ajedrez) y cada familia tiene
+Cada juego es una **familia** (Wordle, Sudoku, Buscaminas) y cada familia tiene
 varios **modos** (individual, cooperativo, versus, custom).
 
 El catálogo de familias y modos vive en un solo lugar: `frontend/shared/catalog.js`.
@@ -126,7 +126,6 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 - [ ] Probar de punta a punta los modos online con dos clientes reales
 - [ ] Sudoku: modos cooperativo y versus
 - [ ] Buscaminas: modos cooperativo y versus (el motor y el spec ya están)
-- [ ] Ajedrez (sigue como `proximamente` en el catálogo)
 - [ ] Persistencia de la partida en curso (hoy no se usa `localStorage`)
 - [ ] Tests
 

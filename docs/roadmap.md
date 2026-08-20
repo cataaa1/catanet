@@ -46,7 +46,8 @@ Lo que convierte el v1 en el proyecto que describe el hub.
 - [ ] **Buscaminas sin adivinanza** — solver que garantice tableros deducibles
 - [ ] **Sudoku cooperativo** — mismo tablero, varias personas en tiempo real
 - [ ] **Sudoku versus** — mismo tablero, gana quien completa primero
-- [ ] **Ajedrez** — hoy figura como `proximamente` en el catálogo
+- [x] ~~Ajedrez~~ — descartado: necesita un motor de evaluación propio, que es un
+      proyecto aparte. Se reemplazó por el Buscaminas.
 
 El menú de Sudoku ya promete estos modos en su texto de presentación, así que
 mientras no existan, la página está prometiendo de más.
@@ -58,8 +59,9 @@ mientras no existan, la página está prometiendo de más.
       colores del Wordle con letras repetidas, detección de conflictos del Sudoku,
       transiciones de turno de las salas.
 - [ ] **Reconexión a una sala.** Hoy si se te corta la conexión, se cierra la sala.
-- [ ] **Limpieza de assets sin usar.** `frontend/hub/assets/hub-pixel-river.png` y
-      `assets/menus/background-3.png` ya no los referencia ningún HTML.
+- [ ] **Limpieza de assets sin usar.** Quedaron huérfanos
+      `frontend/hub/assets/hub-pixel-river.png` y `logo-ajedrez.png`. Los cuatro
+      fondos de `assets/menus/` sí están en uso, uno por cada menú.
 
 ---
 
