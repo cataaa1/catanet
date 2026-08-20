@@ -86,6 +86,27 @@ celdas con ese dígito en ese grupo se marcan en conflicto.
 Los conflictos son informativos: no bloquean la escritura, sólo se resaltan y
 se cuentan en el panel de progreso.
 
+### Tres errores, en los tres modos
+Los tres modos permiten **tres errores**. Cada número que no coincide con la
+solución se marca en rojo con un temblor corto y gasta uno; al tercero se pierde.
+
+Corregir la celda saca la marca pero **no** devuelve el error, y en el individual
+tampoco lo devuelve el deshacer: si el deshacer los borrara, las vidas no
+costarían nada.
+
+Dónde se detecta el error cambia según el modo, y no es un detalle menor:
+
+| Modo | Quién detecta el error | Por qué |
+|---|---|---|
+| Individual | El cliente | Tiene la solución, la generó él mismo |
+| Diario | El cliente | El servidor le manda la solución junto al tablero |
+| Carrera | **El servidor** | El cliente no tiene la solución, a propósito |
+
+En la carrera, quedarse sin errores te deja **afuera**: no podés seguir
+escribiendo. Si todos menos uno quedan afuera, ese gana sin tener que terminar el
+tablero — no tiene sentido hacerle completar un sudoku entero cuando ya no
+compite contra nadie. Si quedan todos afuera, la carrera termina sin ganador.
+
 ### Victoria
 Se considera resuelto cuando el tablero está **completo** (sin celdas vacías) y
 coincide exactamente con la solución guardada. La solución se calcula al generar
