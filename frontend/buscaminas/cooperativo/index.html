@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CataNet | Buscaminas cooperativo</title>
+  <meta name="description" content="Buscaminas cooperativo en CataNet: varias personas despejando el mismo tablero en tiempo real.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/buscaminas/online/style.css">
+</head>
+<body>
+  <div class="fondo" aria-hidden="true">
+    <div class="fondo__gradiente"></div>
+    <div class="fondo__halo fondo__halo--uno"></div>
+    <div class="fondo__halo fondo__halo--dos"></div>
+  </div>
+
+  <main class="app">
+    <a class="btn-volver btn-volver--inicio" href="/buscaminas/">&larr; Volver</a>
+
+    <section class="panel panel--inicio" id="panel-inicio">
+      <span class="marca">CataNet</span>
+      <h1>Buscaminas coop</h1>
+      <p class="intro">Un mismo tablero para todo el equipo, en tiempo real. Ojo: una sola mina termina la partida para todos.</p>
+
+      <div class="dificultades" id="grupo-dificultades" role="group" aria-label="Elegir dificultad">
+        <button class="chip-dificultad is-active" data-dificultad="facil" type="button">Facil</button>
+        <button class="chip-dificultad" data-dificultad="medio" type="button">Medio</button>
+        <button class="chip-dificultad" data-dificultad="dificil" type="button">Dificil</button>
+      </div>
+
+      <div class="acciones">
+        <button class="btn btn--icono boton-ayuda" type="button" aria-label="Ver reglas">?</button>
+        <button class="btn btn--primario" id="boton-crear" type="button">Nueva partida</button>
+      </div>
+
+      <div class="union">
+        <label class="union__label" for="input-sala">Unirse con codigo</label>
+        <div class="union__fila">
+          <input class="campo" id="input-sala" type="text" maxlength="4" placeholder="a1b2"
+            inputmode="text" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false">
+          <button class="btn btn--secundario" id="boton-unirse" type="button">Unirse</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel--juego" id="panel-juego" hidden>
+      <header class="juego-header">
+        <div class="juego-header__lado">
+          <a class="btn-volver" href="/buscaminas/">&larr; Volver</a>
+          <div>
+            <p class="eyebrow">Sala</p>
+            <p class="juego-header__codigo" id="texto-sala">----</p>
+          </div>
+        </div>
+        <div class="juego-header__centro">
+          <h1 class="juego-header__titulo">Buscaminas coop</h1>
+        </div>
+        <div class="juego-header__lado">
+          <div class="acciones-header">
+            <button class="btn btn--icono boton-ayuda" type="button" aria-label="Ver reglas">?</button>
+            <button class="btn btn--secundario btn--chico" id="boton-copiar" type="button">Copiar link</button>
+            <button class="btn btn--secundario btn--chico boton-revancha" type="button" hidden>Revancha</button>
+          </div>
+        </div>
+      </header>
+
+      <p class="sr-only" id="texto-estado" aria-live="polite"></p>
+
+      <div class="barra-juego">
+        <div class="jugadores" id="panel-jugadores"></div>
+        <div class="acciones-header">
+          <div class="marcador-minas">
+            <img src="/buscaminas/assets/mina.png" alt="" width="22" height="22">
+            <strong id="texto-minas">0</strong>
+          </div>
+          <button class="modo-bandera" id="boton-modo-bandera" type="button" aria-pressed="false">
+            <img src="/buscaminas/assets/bandera.png" alt="" width="20" height="20">
+            <span>Bandera</span>
+            <span class="modo-bandera__estado" id="estado-modo-bandera">OFF</span>
+          </button>
+        </div>
+      </div>
+
+      <section class="tablero-panel">
+        <div class="tablero" id="tablero" role="grid" aria-label="Tablero de Buscaminas"></div>
+      </section>
+    </section>
+  </main>
+
+  <section class="ayuda-modal" id="panel-ayuda" hidden aria-labelledby="ayuda-titulo" role="dialog" aria-modal="true">
+    <div class="ayuda" role="document">
+      <button class="btn btn--icono ayuda__cerrar" id="boton-cerrar-ayuda" type="button" aria-label="Cerrar reglas">&times;</button>
+      <p class="eyebrow">Reglas</p>
+      <h2 id="ayuda-titulo">Como jugar en equipo</h2>
+      <p>Comparten un unico tablero y todos pueden destapar cuando quieran, sin turnos. Cada celda queda marcada con el color de quien la abrio.</p>
+      <ul>
+        <li>Los numeros dicen cuantas minas hay en las ocho celdas de alrededor.</li>
+        <li>La bandera se pone con click derecho, con el boton Bandera o dejando el dedo apoyado.</li>
+        <li>El tablero arranca con un area ya abierta, asi que nadie puede pisar una mina en la primera jugada.</li>
+        <li><strong>Una mina y se acabo:</strong> la primera que pise cualquiera termina la partida para todo el equipo.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="resultado-modal" id="panel-resultado" hidden aria-labelledby="resultado-titulo" role="dialog" aria-modal="true">
+    <div class="resultado" role="document">
+      <p class="eyebrow" id="resultado-eyebrow">Partida terminada</p>
+      <h2 id="resultado-titulo">Resultado</h2>
+      <p id="resultado-texto"></p>
+      <div class="resultado__acciones">
+        <button class="btn btn--primario boton-revancha" type="button" hidden>Revancha</button>
+        <a class="btn btn--secundario" href="/buscaminas/">Volver al menu</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

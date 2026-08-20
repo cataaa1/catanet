@@ -47,6 +47,7 @@ CataNet/
 │   ├── server.js                ← Express + Socket.io + estáticos
 │   ├── rooms.js                 ← salas del Co-Wordle por turnos
 │   ├── versusRooms.js           ← salas del Versus por tiempo
+│   ├── buscaminasRooms.js      ← salas del Buscaminas coop y versus
 │   └── words.js                 ← lista de palabras
 └── frontend/
     ├── hub/
@@ -72,7 +73,10 @@ CataNet/
     └── buscaminas/
         ├── index.html           ← menú de la familia Buscaminas
         ├── assets/              ← mina y bandera en pixel art
-        └── individual/
+        ├── online/              ← cliente y estilos que comparten coop y versus
+        ├── individual/
+        ├── cooperativo/         ← online
+        └── versus/              ← online
 ```
 
 ## Reglas importantes al escribir código
@@ -119,13 +123,12 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 - [x] Wordle: menú de familia + individual + custom + versus por tiempo
 - [x] Co-Wordle: cooperativo por turnos, online
 - [x] Sudoku: menú de familia + modo individual con tres dificultades
-- [x] Buscaminas: motor compartido + menú de familia + modo individual
+- [x] Buscaminas: motor compartido, menú de familia y los tres modos
 
 ### Pendiente
 - [ ] Deploy en un host con WebSockets (hoy sólo corre en localhost)
 - [ ] Probar de punta a punta los modos online con dos clientes reales
 - [ ] Sudoku: modos cooperativo y versus
-- [ ] Buscaminas: modos cooperativo y versus (el motor y el spec ya están)
 - [ ] Persistencia de la partida en curso (hoy no se usa `localStorage`)
 - [ ] Tests
 

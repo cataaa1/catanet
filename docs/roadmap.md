@@ -39,10 +39,8 @@ alguien y juegan.
 Lo que convierte el v1 en el proyecto que describe el hub.
 
 ### Juegos
-- [ ] **Buscaminas cooperativo** — mismo tablero, varias personas en tiempo real.
-      El motor (`shared/buscaminas.js`) ya corre igual en cliente y servidor, y
-      el spec ya define los eventos de socket. Falta `backend/buscaminasRooms.js`.
-- [ ] **Buscaminas versus** — mismo tablero, gana quien despeja primero
+- [x] ~~Buscaminas cooperativo~~ — listo, en `backend/buscaminasRooms.js`
+- [x] ~~Buscaminas versus~~ — listo, mismo tablero para los dos
 - [ ] **Buscaminas sin adivinanza** — solver que garantice tableros deducibles
 - [ ] **Sudoku cooperativo** — mismo tablero, varias personas en tiempo real
 - [ ] **Sudoku versus** — mismo tablero, gana quien completa primero

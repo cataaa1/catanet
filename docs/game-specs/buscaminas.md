@@ -26,7 +26,14 @@ a lo ancho, así que scrollea en horizontal dentro de su contenedor.
 
 ## Generación del tablero
 
-### Las minas se colocan recién en el primer click
+### En los modos online, el tablero se genera al empezar
+En cooperativo y versus el servidor genera el tablero al arrancar la partida y
+**abre un área inicial** que es la misma para todo el mundo. Son dos problemas
+que se resuelven de una: si las minas se colocaran en el primer click de cada
+persona, en versus los dos tableros saldrían distintos; y si se colocaran de
+entrada sin abrir nada, el primer click podría ser una mina.
+
+### En el modo individual, las minas se colocan recién en el primer click
 Al crear la partida el tablero está vacío. Las minas se sortean cuando la persona
 revela su primera celda, excluyendo esa celda **y sus ocho vecinas**. Eso garantiza
 dos cosas:
