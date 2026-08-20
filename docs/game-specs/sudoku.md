@@ -119,6 +119,18 @@ Generar es caro y muy variable. Medido en esta máquina:
 | 34 (fácil/medio) | ~220 ms |
 | 30 (difícil) | ~1,8 s |
 | 28 (experto) | ~6,4 s |
+| 26 | ~95 s |
+| 24 | revienta: `Maximum call stack size exceeded` |
+
+**Ojo con bajar de 28 pistas.** La librería externa tiene un límite duro ahí:
+con 26 tarda un minuto y medio por tablero, y con 24 la recursión de `_eliminate`
+se queda sin pila y tira una excepción. Si algún día se quiere un diario más
+difícil que `experto`, no alcanza con bajar las pistas: hace falta otro generador.
+
+Como `experto` usa 28 y queda a un escalón de esa zona, si la generación falla el
+diario sale en dificultad `difícil` antes que no salir, y tras un fallo el
+servidor espera treinta segundos antes de reintentar, para que el cliente que
+pregunta cada segundo y medio no dispare un worker en cada pregunta.
 
 Un tablero experto tarda unos 20 segundos en salir, contando los reintentos que
 hacen falta para que cumpla las reglas de dificultad. Eso es inaceptable en el

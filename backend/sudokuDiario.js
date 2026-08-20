@@ -2,11 +2,19 @@ const path = require('path');
 const { Worker } = require('worker_threads');
 
 const DIFICULTAD_DIARIA = 'experto';
+// Si el experto falla, el diario sale en dificil antes que no salir. La libreria
+// externa tiene un limite duro cerca de las 28 pistas: con 26 tarda un minuto y
+// medio por tablero y con 24 se queda sin pila y revienta.
+const DIFICULTAD_RESPALDO = 'dificil';
+// Tras un fallo esperamos antes de reintentar, para que el cliente que pregunta
+// cada segundo y medio no dispare un worker nuevo en cada pregunta.
+const ESPERA_TRAS_FALLO_MS = 30 * 1000;
 const RUTA_WORKER = path.resolve(__dirname, 'workers', 'generarSudoku.mjs');
 
 let motor = null;
 let cache = null;
 let generacionEnCurso = null;
+let reintentarDespuesDe = 0;
 
 // El motor vive en frontend/shared y es un modulo ES, igual que en buscaminasRooms
 async function cargarMotorSudoku() {
@@ -42,13 +50,25 @@ async function obtenerSudokuDiario(momento = new Date()) {
 
 async function generarTableroDelDia(fecha) {
   const { semillaDeFecha } = await cargarMotorSudoku();
+  const semilla = semillaDeFecha(fecha);
 
   try {
-    const tablero = await generarEnWorker(DIFICULTAD_DIARIA, semillaDeFecha(fecha));
+    for (const dificultad of [DIFICULTAD_DIARIA, DIFICULTAD_RESPALDO]) {
+      try {
+        const tablero = await generarEnWorker(dificultad, semilla);
 
-    cache = { fecha, ...tablero };
+        cache = { fecha, ...tablero };
+        reintentarDespuesDe = 0;
 
-    return cache;
+        return cache;
+      } catch (error) {
+        console.error(`El Sudoku diario fallo en dificultad ${dificultad}:`, error.message);
+      }
+    }
+
+    reintentarDespuesDe = Date.now() + ESPERA_TRAS_FALLO_MS;
+
+    throw new Error('No pude generar el Sudoku de hoy.');
   } finally {
     generacionEnCurso = null;
   }
@@ -93,6 +113,10 @@ async function pedirSudokuDiario(momento = new Date()) {
 
   if (cache && cache.fecha === fecha) {
     return { listo: true, tablero: cache };
+  }
+
+  if (Date.now() < reintentarDespuesDe) {
+    return { listo: false, fecha, esperando: true };
   }
 
   obtenerSudokuDiario(momento).catch((error) => {
