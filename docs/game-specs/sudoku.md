@@ -56,14 +56,14 @@ El panel de la izquierda tiene cuatro acciones arriba y el numpad de 3x3 abajo.
 - **0, Delete o Backspace** (o el botón "Borrar") para vaciar la celda
 - **Flechas** para mover la selección (con wrap-around en los bordes)
 - **Deshacer** (o `Ctrl+Z`) revierte jugada por jugada, incluidas las notas
-- **Borrador** (o la tecla `N`) alterna el modo de anotaciones
+- **Lápiz** (o la tecla `N`) alterna el modo de anotaciones
 - **Pista** revela una celda; hay tres por tablero. Deshacer una pista
   devuelve el crédito
 - Las pistas iniciales son fijas: si se intenta escribirlas o borrarlas,
   aparece un aviso y no cambia nada
 
-### Modo borrador
-Con el borrador activo, cada dígito se agrega o se saca de las anotaciones de
+### Modo lápiz
+Con el lápiz activo, cada dígito se agrega o se saca de las anotaciones de
 la celda, que se dibujan en una grilla de 3x3 dentro del casillero. Escribir un
 valor real borra las anotaciones de esa celda.
 
@@ -83,8 +83,9 @@ Después de cada jugada se recorren las 9 filas, las 9 columnas y los 9 bloques.
 Si dentro de un grupo un mismo dígito aparece dos o más veces, **todas** las
 celdas con ese dígito en ese grupo se marcan en conflicto.
 
-Los conflictos son informativos: no bloquean la escritura, sólo se resaltan y
-se cuentan en el panel de progreso.
+Los conflictos son informativos y son otra cosa que los errores: marcan que un
+dígito está repetido en una fila, columna o bloque, aunque el número podría ser
+igual el correcto y estar mal otro. No bloquean la escritura ni gastan vidas.
 
 ### Tres errores, en los tres modos
 Los tres modos permiten **tres errores**. Cada número que no coincide con la
@@ -168,11 +169,10 @@ navegador, así que lo genera el servidor **una vez por día** y lo cachea:
 Usa la dificultad `experto`: 28 pistas, sin ninguna jugada obvia de entrada
 (`maxSingles: 0`) y con un promedio alto de candidatos por celda.
 
-### Tres errores permitidos
-Como el servidor manda la solución junto con el tablero, el cliente sabe al
-instante si un número va o no. Cada número equivocado se marca en rojo con un
-temblor corto y gasta uno de los tres errores; al tercero se pierde el desafío
-del día. Corregir la celda saca la marca pero **no** devuelve el error gastado.
+### Tres errores
+Como en los otros modos, con la ventaja de que acá el cliente ya tiene la
+solución: el servidor se la manda junto con el tablero. Ver *Tres errores, en los
+tres modos*, más arriba.
 
 ### El progreso se guarda
 Un tablero experto lleva su rato y nadie lo resuelve de una sentada, así que la
