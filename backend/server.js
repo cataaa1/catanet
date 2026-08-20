@@ -27,6 +27,20 @@ const {
   iniciarLimpiezaVersusPeriodica
 } = require('./versusRooms');
 
+const {
+  cargarMotorBuscaminas,
+  crearSalaBuscaminas,
+  obtenerSalaBuscaminasPorSocket,
+  unirseASalaBuscaminas,
+  revelarEnSala,
+  marcarEnSala,
+  reiniciarSalaBuscaminas,
+  obtenerEstadoBuscaminasPublico,
+  registrarDesconexionBuscaminas,
+  cerrarSalaBuscaminas,
+  iniciarLimpiezaBuscaminasPeriodica
+} = require('./buscaminasRooms');
+
 const PUERTO = Number(process.env.PORT) || 3000;
 const app = express();
 const servidorHttp = http.createServer(app);
@@ -80,6 +94,7 @@ app.get('/', (_solicitud, respuesta) => {
 
 iniciarLimpiezaPeriodica();
 iniciarLimpiezaVersusPeriodica();
+iniciarLimpiezaBuscaminasPeriodica();
 
 io.on('connection', (socket) => {
   manejarEventoSeguro(socket, 'crear-sala', (payload) => {
@@ -232,12 +247,105 @@ io.on('connection', (socket) => {
     cerrarSalaVersus(sala.id);
   });
 
+  manejarEventoSeguro(socket, 'buscaminas-crear-sala', (payload) => {
+    const opciones = payload && typeof payload === 'object' ? payload : {};
+    const sala = crearSalaBuscaminas(socket.id, {
+      modo: opciones.modo,
+      dificultad: opciones.dificultad
+    });
+
+    socket.join(sala.id);
+
+    socket.emit('buscaminas-sala-creada', {
+      salaId: sala.id,
+      link: construirLinkPorRuta(socket, sala.id, rutaDeBuscaminas(sala.modo)),
+      estado: obtenerEstadoBuscaminasPublico(sala, socket.id)
+    });
+  });
+
+  manejarEventoSeguro(socket, 'buscaminas-unirse-sala', ({ salaId }) => {
+    const { sala, partidaIniciada } = unirseASalaBuscaminas(salaId, socket.id);
+
+    socket.join(sala.id);
+
+    if (partidaIniciada) {
+      emitirEstadoBuscaminas(sala, 'buscaminas-partida-iniciada');
+      return;
+    }
+
+    // Quien se suma recibe el estado, y el resto se entera de que llego
+    socket.emit('buscaminas-estado', {
+      estado: obtenerEstadoBuscaminasPublico(sala, socket.id)
+    });
+    emitirEstadoBuscaminas(sala, 'buscaminas-estado', { excepto: socket.id });
+  });
+
+  manejarEventoSeguro(socket, 'buscaminas-revelar', ({ salaId, fila, columna }) => {
+    const resultado = revelarEnSala(salaId, socket.id, Number(fila), Number(columna));
+
+    emitirEstadoBuscaminas(resultado.sala, 'buscaminas-celdas-reveladas', {
+      extra: { jugadorId: socket.id, celdas: resultado.celdas }
+    });
+
+    if (resultado.resultadoFinal) {
+      emitirEstadoBuscaminas(resultado.sala, 'buscaminas-partida-terminada', {
+        extra: resultado.resultadoFinal
+      });
+    }
+  });
+
+  manejarEventoSeguro(socket, 'buscaminas-bandera', ({ salaId, fila, columna }) => {
+    const resultado = marcarEnSala(salaId, socket.id, Number(fila), Number(columna));
+
+    if (!resultado.cambio) {
+      return;
+    }
+
+    emitirEstadoBuscaminas(resultado.sala, 'buscaminas-bandera-cambiada', {
+      extra: {
+        jugadorId: socket.id,
+        fila: Number(fila),
+        columna: Number(columna),
+        puesta: resultado.puesta
+      }
+    });
+  });
+
+  manejarEventoSeguro(socket, 'buscaminas-reiniciar', ({ salaId }) => {
+    const sala = reiniciarSalaBuscaminas(salaId, socket.id);
+
+    emitirEstadoBuscaminas(sala, 'buscaminas-partida-iniciada');
+  });
+
+  manejarEventoSeguro(socket, 'buscaminas-cerrar-sala', ({ salaId }) => {
+    const sala = obtenerSalaBuscaminasPorSocket(socket.id);
+
+    if (!sala || sala.id !== salaId) {
+      return;
+    }
+
+    io.to(sala.id).emit('buscaminas-sala-cerrada', {
+      jugadorId: socket.id,
+      motivo: 'volver-al-menu'
+    });
+
+    cerrarSalaBuscaminas(sala.id);
+  });
+
   socket.on('disconnect', () => {
     try {
       const resultado = registrarDesconexion(socket.id);
 
       if (resultado && resultado.hayOtroJugadorConectado) {
         socket.to(resultado.salaId).emit('jugador-desconectado');
+      }
+
+      const resultadoBuscaminas = registrarDesconexionBuscaminas(socket.id);
+
+      if (resultadoBuscaminas && resultadoBuscaminas.hayOtroJugadorConectado) {
+        socket.to(resultadoBuscaminas.salaId).emit('buscaminas-jugador-desconectado', {
+          jugadorId: socket.id
+        });
       }
 
       const resultadoVersus = registrarDesconexionVersus(socket.id);
@@ -255,9 +363,42 @@ io.on('connection', (socket) => {
   });
 });
 
-servidorHttp.listen(PUERTO, () => {
-  console.log(`Servidor de CataNet escuchando en http://localhost:${PUERTO}`);
-});
+iniciarServidor();
+
+async function iniciarServidor() {
+  try {
+    // El motor del Buscaminas es un modulo ES y este archivo es CommonJS, asi
+    // que se carga con import() dinamico antes de empezar a escuchar.
+    await cargarMotorBuscaminas();
+  } catch (error) {
+    console.error('No pude cargar el motor del Buscaminas:', error);
+    process.exit(1);
+  }
+
+  servidorHttp.listen(PUERTO, () => {
+    console.log(`Servidor de CataNet escuchando en http://localhost:${PUERTO}`);
+  });
+}
+
+function rutaDeBuscaminas(modo) {
+  return modo === 'versus' ? '/buscaminas/versus/' : '/buscaminas/cooperativo/';
+}
+
+// En versus cada persona ve su propio tablero, asi que el estado va personalizado
+function emitirEstadoBuscaminas(sala, evento, opciones = {}) {
+  const { extra = {}, excepto = null } = opciones;
+
+  sala.ordenJugadores.forEach((jugadorId) => {
+    if (jugadorId === excepto) {
+      return;
+    }
+
+    io.to(jugadorId).emit(evento, {
+      ...extra,
+      estado: obtenerEstadoBuscaminasPublico(sala, jugadorId)
+    });
+  });
+}
 
 function manejarEventoSeguro(socket, nombreEvento, controlador) {
   socket.on(nombreEvento, (payload = {}) => {

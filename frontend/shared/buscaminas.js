@@ -72,6 +72,32 @@ export function crearTableroVacio(filas, columnas) {
 }
 
 /**
+ * Coloca las minas en posiciones ya conocidas, en vez de sortearlas. Sirve para
+ * clonar un tablero: en el modo versus las dos personas tienen que recibir
+ * exactamente el mismo, y con esto se siembra el segundo igual que el primero.
+ * @param {Array<{fila: number, columna: number}>} posiciones
+ */
+export function sembrarMinas(estado, posiciones) {
+  if (estado.minasColocadas) {
+    throw new Error('Ese tablero ya tiene las minas colocadas.');
+  }
+
+  posiciones.forEach(({ fila, columna }) => {
+    if (!estaDentro(estado, fila, columna)) {
+      throw new Error(`La mina ${fila},${columna} cae fuera del tablero.`);
+    }
+
+    estado.tablero[fila][columna].mina = true;
+  });
+
+  contarAdyacentes(estado);
+  estado.minas = posiciones.length;
+  estado.minasColocadas = true;
+
+  return estado;
+}
+
+/**
  * Revela una celda. Si es la primera del tablero, antes coloca las minas
  * dejandola segura a ella y a sus vecinas.
  * @returns {{celdas: Array, exploto: boolean, gano: boolean}} las celdas que
