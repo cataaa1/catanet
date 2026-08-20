@@ -79,7 +79,10 @@ Corre entero en el cliente, sin servidor, igual que el Sudoku individual.
   la cruz, con Escape o tocando el fondo.
 - El lado de cada celda se calcula contra el espacio disponible, así que el tablero
   se dibuja lo más grande que entre y se reajusta al cambiar el tamaño de ventana.
-- Al perder se revelan todas las minas y se marca en rojo la que se pisó.
+- Al perder se destapan **todas** las minas, incluidas las que ya tenían bandera.
+  Se distinguen tres casos: la mina que se pisó queda en rojo, las que estaban
+  bien marcadas quedan en verde, y las banderas puestas donde no había mina
+  quedan marcadas como equivocadas.
 - Al ganar se llama a `festejar()` de `/shared/celebracion.js`.
 
 ## Modo cooperativo (online)

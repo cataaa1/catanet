@@ -414,6 +414,11 @@ h1 {
   background: #e9d0da;
 }
 
+/* Mina que habias marcado bien: se distingue de la que pisaste */
+.celda--mina-marcada {
+  background: #cfe8d8;
+}
+
 /* Colores clasicos de los numeros, ajustados a la paleta */
 .celda--n1 { color: #2f6fd0; }
 .celda--n2 { color: #2e8b57; }

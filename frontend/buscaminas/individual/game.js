@@ -269,25 +269,18 @@ function terminarPartida(gano) {
   elementos.textoEstado.textContent = gano ? 'Ganaste la partida.' : 'Perdiste la partida.';
 }
 
-// Al terminar mostramos donde estaban las minas y que banderas estaban mal
+// Al perder se destapan TODAS las minas, incluidas las que ya tenian bandera,
+// para que quede a la vista donde estaba cada una. Al ganar no hace falta.
 function revelarTableroCompleto(gano) {
-  const minas = obtenerMinas(estado.partida);
+  if (!gano) {
+    obtenerMinas(estado.partida).forEach(({ fila, columna }) => {
+      estado.partida.tablero[fila][columna].revelada = true;
+    });
+  }
 
-  minas.forEach(({ fila, columna }) => {
-    const celda = estado.partida.tablero[fila][columna];
-
-    if (!celda.bandera && !gano) {
-      celda.revelada = true;
-    }
-
-    pintarCelda(fila, columna);
-  });
-
-  recorrerTablero((celda, fila, columna) => {
-    if (celda.bandera && !celda.mina) {
-      pintarCelda(fila, columna, true);
-    }
-  });
+  // Repintamos entero: cambia el estilo de las minas marcadas y de las banderas
+  // equivocadas, que recien ahora se saben equivocadas.
+  recorrerTablero((_celda, fila, columna) => pintarCelda(fila, columna));
 }
 
 function construirTablero() {
@@ -346,7 +339,7 @@ function ajustarLadoCelda() {
   elementos.tablero.style.setProperty('--lado', `${calcularLadoCelda(filas, columnas)}px`);
 }
 
-function pintarCelda(fila, columna, malMarcada = false) {
+function pintarCelda(fila, columna) {
   const boton = estado.celdasDom[fila] && estado.celdasDom[fila][columna];
 
   if (!boton) {
@@ -358,14 +351,23 @@ function pintarCelda(fila, columna, malMarcada = false) {
   let contenido = '';
   let descripcion = `Fila ${fila + 1}, columna ${columna + 1}`;
 
-  if (malMarcada) {
+  if (estado.partida.fase !== 'jugando' && celda.bandera && !celda.mina) {
     clases.push('celda--abierta', 'celda--mal-marcada');
     contenido = `<img src="${RUTA_BANDERA}" alt="">`;
     descripcion += ', bandera equivocada';
   } else if (celda.revelada && celda.mina) {
-    clases.push('celda--abierta', 'celda--explotada');
+    clases.push('celda--abierta');
     contenido = `<img src="${RUTA_MINA}" alt="">`;
-    descripcion += ', mina';
+
+    if (esCeldaExplotada(fila, columna)) {
+      clases.push('celda--explotada');
+      descripcion += ', la mina que pisaste';
+    } else if (celda.bandera) {
+      clases.push('celda--mina-marcada');
+      descripcion += ', mina que habias marcado bien';
+    } else {
+      descripcion += ', mina';
+    }
   } else if (celda.revelada) {
     clases.push('celda--abierta');
 
@@ -386,6 +388,12 @@ function pintarCelda(fila, columna, malMarcada = false) {
   boton.className = clases.join(' ');
   boton.innerHTML = contenido;
   boton.setAttribute('aria-label', descripcion);
+}
+
+function esCeldaExplotada(fila, columna) {
+  const explotada = estado.partida.celdaExplotada;
+
+  return Boolean(explotada) && explotada.fila === fila && explotada.columna === columna;
 }
 
 function renderizarTodo() {
