@@ -6,6 +6,7 @@ const TIEMPO_RECONEXION_MS = 60 * 1000;
 const TIEMPO_LIMPIEZA_MS = 30 * 60 * 1000;
 const JUGADORES_PARA_ARRANCAR = 2;
 const MAXIMO_JUGADORES = 6;
+const MAXIMO_ERRORES = 3;
 
 const COLORES = ['#7bd0ff', '#f0a6c0', '#8ff0c0', '#ffd76b', '#c9a7ff', '#ff8fb1'];
 
@@ -131,6 +132,9 @@ async function arrancarCarrera(sala) {
     sala.tablerosPorJugador[jugadorId] = clonar(sala.tableroInicial);
     sala.jugadores[jugadorId].correctas = contarCorrectasDe(sala, jugadorId);
     sala.jugadores[jugadorId].termino = false;
+    sala.jugadores[jugadorId].errores = 0;
+    sala.jugadores[jugadorId].erradas = new Set();
+    sala.jugadores[jugadorId].eliminado = false;
   });
 
   return sala;
@@ -153,6 +157,10 @@ function registrarJugadaSudoku(salaId, socketId, fila, columna, valor) {
     throw new Error('La carrera no esta en curso.');
   }
 
+  if (sala.jugadores[socketId].eliminado) {
+    throw new Error('Te quedaste sin errores en esta carrera.');
+  }
+
   const tablero = sala.tablerosPorJugador[socketId];
 
   if (!tablero || !tablero[fila] || tablero[fila][columna] === undefined) {
@@ -163,20 +171,70 @@ function registrarJugadaSudoku(salaId, socketId, fila, columna, valor) {
     throw new Error('Esa celda venia fija en el tablero.');
   }
 
-  tablero[fila][columna] = normalizarEntradaSudoku(valor);
-  sala.jugadores[socketId].correctas = contarCorrectasDe(sala, socketId);
+  const jugador = sala.jugadores[socketId];
+  const escrito = normalizarEntradaSudoku(valor);
+  const correcto = stringATablero(sala.solucion)[fila][columna];
+  const idCelda = `${fila}-${columna}`;
 
-  const resolvio = estaSudokuResuelto(tablero, stringATablero(sala.solucion));
-  let resultadoFinal = null;
+  tablero[fila][columna] = escrito;
+  jugador.correctas = contarCorrectasDe(sala, socketId);
+  jugador.erradas.delete(idCelda);
 
+  // El cliente no tiene la solucion, asi que el error lo detecta el servidor
+  const seEquivoco = Boolean(escrito) && escrito !== correcto;
+
+  if (seEquivoco) {
+    jugador.errores += 1;
+    jugador.erradas.add(idCelda);
+
+    if (jugador.errores >= MAXIMO_ERRORES) {
+      jugador.eliminado = true;
+    }
+  }
+
+  const resolvio = !seEquivoco && estaSudokuResuelto(tablero, stringATablero(sala.solucion));
+
+  return {
+    sala,
+    resolvio,
+    seEquivoco,
+    resultadoFinal: resolverFinalCarrera(sala, socketId, resolvio)
+  };
+}
+
+/**
+ * Decide si la carrera termino.
+ *
+ * Gana quien completa el tablero. Si en el camino todos menos uno se quedan sin
+ * errores, ese gana sin tener que terminar: no tiene sentido hacerle completar
+ * un tablero entero cuando ya no compite contra nadie.
+ */
+function resolverFinalCarrera(sala, socketId, resolvio) {
   if (resolvio) {
     sala.jugadores[socketId].termino = true;
     sala.fase = 'terminada';
     sala.ganador = socketId;
-    resultadoFinal = { ganador: socketId, solucion: sala.solucion };
+
+    return { ganador: socketId, solucion: sala.solucion };
   }
 
-  return { sala, resolvio, resultadoFinal };
+  const enCarrera = sala.ordenJugadores.filter((id) => !sala.jugadores[id].eliminado);
+
+  if (enCarrera.length === 0) {
+    sala.fase = 'terminada';
+    sala.ganador = null;
+
+    return { ganador: null, solucion: sala.solucion };
+  }
+
+  if (enCarrera.length === 1 && sala.ordenJugadores.length > 1) {
+    sala.fase = 'terminada';
+    sala.ganador = enCarrera[0];
+
+    return { ganador: enCarrera[0], solucion: sala.solucion };
+  }
+
+  return null;
 }
 
 function reiniciarSalaSudoku(salaId, socketId) {
@@ -217,6 +275,8 @@ function obtenerEstadoSudokuPublico(sala, socketId) {
     puzzle: sala.fase === 'esperando' ? null : sala.puzzle,
     tablero: propio ? propio.map((fila) => fila.slice()) : null,
     solucion: sala.fase === 'terminada' ? sala.solucion : null,
+    maximoErrores: MAXIMO_ERRORES,
+    erradas: sala.jugadores[socketId] ? [...sala.jugadores[socketId].erradas] : [],
     jugadores: sala.ordenJugadores.map((jugadorId) => ({
       id: jugadorId,
       numero: sala.jugadores[jugadorId].numero,
@@ -224,6 +284,8 @@ function obtenerEstadoSudokuPublico(sala, socketId) {
       conectado: sala.jugadores[jugadorId].conectado,
       correctas: sala.jugadores[jugadorId].correctas,
       termino: sala.jugadores[jugadorId].termino,
+      errores: sala.jugadores[jugadorId].errores,
+      eliminado: sala.jugadores[jugadorId].eliminado,
       soyYo: jugadorId === socketId
     }))
   };
@@ -287,7 +349,10 @@ function crearJugador(numero) {
     conectado: true,
     desconectadoEn: null,
     correctas: 0,
-    termino: false
+    termino: false,
+    errores: 0,
+    erradas: new Set(),
+    eliminado: false
   };
 }
 

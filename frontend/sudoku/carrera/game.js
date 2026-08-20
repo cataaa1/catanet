@@ -39,6 +39,7 @@ const elementos = {
   textoVelo: document.getElementById('texto-velo'),
   numpad: document.getElementById('numpad'),
   botonBorrar: document.getElementById('boton-borrar'),
+  textoErrores: document.getElementById('texto-errores'),
   botonLapiz: document.getElementById('boton-lapiz'),
   estadoLapiz: document.getElementById('estado-lapiz'),
   resultadoTitulo: document.getElementById('resultado-titulo'),
@@ -57,6 +58,7 @@ const estado = {
   notas: crearNotasVacias(),
   modoLapiz: false,
   conflictos: new Set(),
+  celdasErradas: new Set(),
   festejado: false,
   toastTimeout: null
 };
@@ -237,6 +239,9 @@ function aplicarEstado(nuevo) {
     estado.tableroInicial = stringATablero(nuevo.puzzle);
   }
 
+  estado.celdasErradas = new Set(nuevo.erradas || []);
+  elementos.textoErrores.textContent = `${errorespropios(nuevo)} / ${nuevo.maximoErrores || 3}`;
+
   if (nuevo.tablero) {
     estado.tableroActual = nuevo.tablero.map((fila) => fila.slice());
     estado.conflictos = obtenerConflictos(estado.tableroActual);
@@ -291,6 +296,12 @@ function dibujarNotas(notas) {
   return `<span class="celda__notas">${celdas}</span>`;
 }
 
+function errorespropios(nuevo) {
+  const yo = nuevo.jugadores.find((jugador) => jugador.soyYo);
+
+  return yo ? yo.errores : 0;
+}
+
 function renderizarVelo(nuevo) {
   if (nuevo.fase === 'esperando') {
     elementos.velo.hidden = false;
@@ -314,11 +325,12 @@ function renderizarRanking(nuevo) {
     const porcentaje = Math.round((jugador.correctas / CELDAS_SIN_MINA) * 100);
     const nombre = jugador.soyYo ? 'Vos' : `Jugador ${jugador.numero}`;
     const corona = jugador.id === nuevo.ganador ? ' <span class="corona">ganó</span>' : '';
+    const afuera = jugador.eliminado ? ' <span class="eliminado">sin vidas</span>' : '';
 
     return `
-      <article class="corredor${jugador.soyYo ? ' corredor--yo' : ''}${jugador.conectado ? '' : ' corredor--fuera'}">
+      <article class="corredor${jugador.soyYo ? ' corredor--yo' : ''}${jugador.conectado && !jugador.eliminado ? '' : ' corredor--fuera'}">
         <span class="corredor__color" style="background:${jugador.color}"></span>
-        <span class="corredor__nombre">${nombre}${corona}</span>
+        <span class="corredor__nombre">${nombre}${corona}${afuera}</span>
         <span class="corredor__barra"><span style="width:${porcentaje}%;background:${jugador.color}"></span></span>
         <span class="corredor__dato">${jugador.correctas}/81</span>
       </article>
@@ -328,6 +340,13 @@ function renderizarRanking(nuevo) {
 
 function jugar(valor) {
   if (!estado.partida || estado.partida.fase !== 'jugando' || !estado.celdaSeleccionada) {
+    return;
+  }
+
+  const yo = estado.partida.jugadores.find((jugador) => jugador.soyYo);
+
+  if (yo && yo.eliminado) {
+    mostrarToast('Te quedaste sin errores en esta carrera.');
     return;
   }
 
@@ -377,11 +396,23 @@ function moverSeleccion(tecla) {
 
 function mostrarResultado(datos) {
   const gane = datos.ganador === socket.id;
+  const yo = datos.estado.jugadores.find((jugador) => jugador.soyYo);
+  const meQuedeSinVidas = Boolean(yo && yo.eliminado);
 
-  elementos.resultadoTitulo.textContent = gane ? 'Ganaste la carrera' : 'Te ganaron de mano';
-  elementos.resultadoTexto.textContent = gane
-    ? 'Completaste el tablero antes que nadie.'
-    : 'Alguien completo el tablero primero. Pedi otra y revancha.';
+  if (!datos.ganador) {
+    elementos.resultadoTitulo.textContent = 'Carrera sin ganador';
+    elementos.resultadoTexto.textContent = 'Se quedaron todos sin errores disponibles.';
+  } else if (gane) {
+    elementos.resultadoTitulo.textContent = 'Ganaste la carrera';
+    elementos.resultadoTexto.textContent = yo && yo.termino
+      ? 'Completaste el tablero antes que nadie.'
+      : 'El resto se quedo sin errores, asi que la carrera es tuya.';
+  } else {
+    elementos.resultadoTitulo.textContent = meQuedeSinVidas ? 'Te quedaste sin vidas' : 'Te ganaron de mano';
+    elementos.resultadoTexto.textContent = meQuedeSinVidas
+      ? 'Se te acabaron los tres errores. Pedi otra carrera.'
+      : 'Alguien completo el tablero primero. Pedi otra y revancha.';
+  }
   elementos.panelResultado.hidden = false;
   elementos.textoEstado.textContent = gane ? 'Ganaste la carrera.' : 'La carrera termino.';
 
@@ -419,7 +450,9 @@ function renderizarTablero() {
         clases.push('celda--seleccionada');
       }
 
-      if (estado.conflictos.has(crearIdCelda(fila, columna))) {
+      if (estado.celdasErradas.has(crearIdCelda(fila, columna))) {
+        clases.push('celda--error');
+      } else if (estado.conflictos.has(crearIdCelda(fila, columna))) {
         clases.push('celda--conflicto');
       }
 

@@ -6,7 +6,8 @@ import {
   estaSudokuResuelto,
   obtenerConflictos,
   obtenerDificultadSudoku,
-  obtenerRelacionCelda
+  obtenerRelacionCelda,
+  MAXIMO_ERRORES_SUDOKU
 } from '/shared/sudoku.js';
 import { festejar } from '/shared/celebracion.js';
 import { habilitarCierreResultado } from '/shared/resultado.js';
@@ -26,6 +27,7 @@ const elementos = {
   botonPista: document.getElementById('boton-pista'),
   badgeNotas: document.getElementById('badge-notas'),
   badgePistas: document.getElementById('badge-pistas'),
+  textoErrores: document.getElementById('texto-errores'),
   panelResultado: document.getElementById('panel-resultado'),
   resultadoTexto: document.getElementById('resultado-texto'),
   botonReiniciar: document.getElementById('boton-reiniciar'),
@@ -42,6 +44,8 @@ const estado = {
   celdasPista: new Set(),
   celdaSeleccionada: null,
   conflictos: new Set(),
+  errores: 0,
+  celdasErradas: new Set(),
   historial: [],
   modoNotas: false,
   pistasRestantes: TOTAL_PISTAS,
@@ -100,6 +104,8 @@ async function iniciarNuevaPartida(dificultadId) {
     estado.modoNotas = false;
     estado.pistasRestantes = TOTAL_PISTAS;
     estado.conflictos = new Set();
+    estado.errores = 0;
+    estado.celdasErradas = new Set();
     estado.festejado = false;
     estado.celdaSeleccionada = buscarPrimeraEditable();
     estado.fase = 'jugando';
@@ -223,7 +229,27 @@ function escribirEnCeldaSeleccionada(valor) {
   estado.tableroActual = actualizarCelda(estado.tableroActual, fila, columna, valor);
   estado.notas[fila][columna] = [];
   estado.celdasPista.delete(crearIdCelda(fila, columna));
+  anotarSiSeEquivoco(fila, columna, valor);
   sincronizarEstadoPartida();
+}
+
+/**
+ * Marca la celda si el numero no es el de la solucion y gasta una vida.
+ *
+ * El error no se devuelve ni corrigiendo la celda ni deshaciendo la jugada: si
+ * el deshacer los borrara, las vidas no costarian nada.
+ */
+function anotarSiSeEquivoco(fila, columna, valor) {
+  const idCelda = crearIdCelda(fila, columna);
+
+  estado.celdasErradas.delete(idCelda);
+
+  if (!valor || valor === estado.tableroResuelto[fila][columna]) {
+    return;
+  }
+
+  estado.errores += 1;
+  estado.celdasErradas.add(idCelda);
 }
 
 function borrarCeldaSeleccionada() {
@@ -244,6 +270,7 @@ function borrarCeldaSeleccionada() {
   estado.tableroActual = actualizarCelda(estado.tableroActual, fila, columna, '');
   estado.notas[fila][columna] = [];
   estado.celdasPista.delete(crearIdCelda(fila, columna));
+  estado.celdasErradas.delete(crearIdCelda(fila, columna));
   sincronizarEstadoPartida();
 }
 
@@ -351,6 +378,7 @@ function deshacerUltimaJugada() {
     estado.pistasRestantes = Math.min(TOTAL_PISTAS, estado.pistasRestantes + 1);
   }
 
+  estado.celdasErradas.delete(idCelda);
   estado.celdaSeleccionada = { fila: jugada.fila, columna: jugada.columna };
   estado.fase = 'jugando';
   elementos.panelResultado.hidden = true;
@@ -377,6 +405,14 @@ function moverSeleccion(tecla) {
 function sincronizarEstadoPartida() {
   estado.conflictos = obtenerConflictos(estado.tableroActual);
 
+  if (estado.errores >= MAXIMO_ERRORES_SUDOKU && estado.fase === 'jugando') {
+    estado.fase = 'perdido';
+    elementos.resultadoTexto.textContent = `Se acabaron los ${MAXIMO_ERRORES_SUDOKU} errores. Proba con un tablero nuevo.`;
+    elementos.panelResultado.hidden = false;
+    renderizarTodo();
+    return;
+  }
+
   if (!estado.conflictos.size && estaSudokuResuelto(estado.tableroActual, estado.tableroResuelto)) {
     estado.fase = 'ganado';
     elementos.resultadoTexto.textContent = `Completaste el tablero en dificultad ${obtenerDificultadSudoku(estado.dificultad).etiqueta.toLowerCase()}.`;
@@ -402,6 +438,7 @@ function renderizarTodo() {
   renderizarEstado();
   renderizarTablero();
   renderizarControles();
+  renderizarErrores();
 }
 
 function renderizarDificultad() {
@@ -499,7 +536,9 @@ function crearCelda({
     clases.push('celda--pista');
   }
 
-  if (estaEnConflicto) {
+  if (estado.celdasErradas.has(crearIdCelda(fila, columna))) {
+    clases.push('celda--error');
+  } else if (estaEnConflicto) {
     clases.push('celda--conflicto');
   }
 
@@ -539,6 +578,10 @@ function crearNotasHtml(notas) {
   }).join('');
 
   return `<span class="celda__notas">${celdasNota}</span>`;
+}
+
+function renderizarErrores() {
+  elementos.textoErrores.textContent = `${estado.errores} / ${MAXIMO_ERRORES_SUDOKU}`;
 }
 
 function renderizarControles() {

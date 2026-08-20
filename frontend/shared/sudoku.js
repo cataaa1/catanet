@@ -2,6 +2,9 @@ const TAMANIO = 9;
 const VACIO = '.';
 const DIGITOS_DISPONIBLES = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
+/** Errores permitidos antes de perder, igual en todos los modos de Sudoku. */
+export const MAXIMO_ERRORES_SUDOKU = 3;
+
 export const DIFICULTADES_SUDOKU = [
   {
     id: 'facil',
