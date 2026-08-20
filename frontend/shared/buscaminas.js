@@ -98,6 +98,84 @@ export function sembrarMinas(estado, posiciones) {
 }
 
 /**
+ * Elige por donde conviene abrir el tablero en los modos online.
+ *
+ * Busca la celda en cero cuya cascada destape la menor cantidad de celdas: da
+ * un punto de apoyo para empezar a deducir sin regalar medio tablero. Abrir en
+ * una celda al azar puede destapar el 90% de un tablero facil.
+ *
+ * Si no hay ninguna celda en cero (tableros muy densos), devuelve cualquier
+ * celda sin mina, que destapa una sola.
+ */
+export function elegirAperturaMinima(estado) {
+  const visitadas = new Set();
+  let mejor = null;
+
+  for (let fila = 0; fila < estado.filas; fila += 1) {
+    for (let columna = 0; columna < estado.columnas; columna += 1) {
+      const celda = estado.tablero[fila][columna];
+
+      if (celda.mina || celda.adyacentes !== 0 || visitadas.has(crearClave(fila, columna))) {
+        continue;
+      }
+
+      const region = medirRegionVacia(estado, fila, columna, visitadas);
+
+      if (!mejor || region.destapadas < mejor.destapadas) {
+        mejor = { fila, columna, destapadas: region.destapadas };
+      }
+    }
+  }
+
+  if (mejor) {
+    return { fila: mejor.fila, columna: mejor.columna, destapadas: mejor.destapadas };
+  }
+
+  for (let fila = 0; fila < estado.filas; fila += 1) {
+    for (let columna = 0; columna < estado.columnas; columna += 1) {
+      if (!estado.tablero[fila][columna].mina) {
+        return { fila, columna, destapadas: 1 };
+      }
+    }
+  }
+
+  return null;
+}
+
+// Cuenta cuantas celdas destaparia la cascada desde esta celda vacia: las celdas
+// en cero conectadas mas el borde de numeros que las rodea.
+function medirRegionVacia(estado, filaInicial, columnaInicial, visitadas) {
+  const pendientes = [[filaInicial, columnaInicial]];
+  const destapadas = new Set();
+
+  while (pendientes.length) {
+    const [fila, columna] = pendientes.pop();
+    const clave = crearClave(fila, columna);
+    const celda = estado.tablero[fila] && estado.tablero[fila][columna];
+
+    if (!celda || celda.mina || destapadas.has(clave)) {
+      continue;
+    }
+
+    destapadas.add(clave);
+
+    if (celda.adyacentes !== 0) {
+      continue;
+    }
+
+    visitadas.add(clave);
+
+    for (const [df, dc] of VECINDARIO) {
+      if (estaDentro(estado, fila + df, columna + dc)) {
+        pendientes.push([fila + df, columna + dc]);
+      }
+    }
+  }
+
+  return { destapadas: destapadas.size };
+}
+
+/**
  * Revela una celda. Si es la primera del tablero, antes coloca las minas
  * dejandola segura a ella y a sus vecinas.
  * @returns {{celdas: Array, exploto: boolean, gano: boolean}} las celdas que

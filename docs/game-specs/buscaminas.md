@@ -33,6 +33,19 @@ que se resuelven de una: si las minas se colocaran en el primer click de cada
 persona, en versus los dos tableros saldrían distintos; y si se colocaran de
 entrada sin abrir nada, el primer click podría ser una mina.
 
+Esa apertura tiene que ser **chica**: da un punto de apoyo para empezar a
+deducir, no medio tablero resuelto. Se consigue en dos pasos:
+
+1. `elegirAperturaMinima()` busca la celda en cero cuya cascada destape menos
+   celdas, en vez de abrir por una celda al azar.
+2. Si aun así la apertura es grande —a veces todo el tablero es una sola región
+   vacía— se sortea otro tablero y se prueba de nuevo, hasta 40 veces, buscando
+   uno cuya apertura no pase del 12 % de las celdas sin mina.
+
+Abriendo por una celda al azar, un tablero fácil arrancaba con el 52 % del
+tablero destapado de promedio y hasta el 90 % en el peor caso. Con esto queda
+en 9 % de promedio y 13 % en el peor caso.
+
 ### En el modo individual, las minas se colocan recién en el primer click
 Al crear la partida el tablero está vacío. Las minas se sortean cuando la persona
 revela su primera celda, excluyendo esa celda **y sus ocho vecinas**. Eso garantiza

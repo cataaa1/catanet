@@ -4,6 +4,9 @@ const LONGITUD_SALA = 4;
 const TIEMPO_RECONEXION_MS = 60 * 1000;
 const TIEMPO_LIMPIEZA_MS = 30 * 60 * 1000;
 const JUGADORES_PARA_ARRANCAR = 2;
+// La apertura inicial no deberia pasar de esta parte del tablero sin minas
+const PROPORCION_APERTURA = 0.12;
+const INTENTOS_APERTURA = 40;
 const MAXIMO_JUGADORES = { coop: 6, versus: 2 };
 
 // Un color por jugador, para ver quien destapo cada celda en el cooperativo
@@ -128,17 +131,16 @@ function unirseASalaBuscaminas(salaId, socketId) {
  * puede morir en la primera jugada.
  */
 function arrancarPartida(sala) {
-  const { crearPartidaBuscaminas, revelarCelda, obtenerMinas, sembrarMinas } = exigirMotor();
+  const {
+    crearPartidaBuscaminas, revelarCelda, obtenerMinas, sembrarMinas, elegirAperturaMinima
+  } = exigirMotor();
 
+  const { minas, apertura } = buscarTableroConAperturaChica(sala.dificultad);
   const partida = crearPartidaBuscaminas(sala.dificultad);
-  const apertura = {
-    fila: Math.floor(Math.random() * partida.filas),
-    columna: Math.floor(Math.random() * partida.columnas)
-  };
 
+  sala.minas = minas;
+  sembrarMinas(partida, minas);
   revelarCelda(partida, apertura.fila, apertura.columna);
-
-  sala.minas = obtenerMinas(partida);
   sala.aperturaInicial = apertura;
   sala.fase = 'jugando';
   sala.ganador = null;
@@ -165,6 +167,57 @@ function arrancarPartida(sala) {
     sala.jugadores[jugadorId].celdasReveladas = obtenerPartida(sala, jugadorId).celdasReveladas;
     sala.jugadores[jugadorId].perdio = false;
   });
+}
+
+/**
+ * Sortea tableros hasta encontrar uno cuya apertura inicial sea chica.
+ *
+ * A veces todo el tablero es una sola region vacia, y entonces abrir por
+ * cualquier lado destapa casi todo. Como generar un tablero es barato, se
+ * prueban varios y se elige el de la apertura mas discreta.
+ */
+function buscarTableroConAperturaChica(dificultadId) {
+  const {
+    crearPartidaBuscaminas, revelarCelda, obtenerMinas, sembrarMinas,
+    elegirAperturaMinima, obtenerDificultadBuscaminas
+  } = exigirMotor();
+
+  const dificultad = obtenerDificultadBuscaminas(dificultadId);
+  const sinMina = (dificultad.filas * dificultad.columnas) - dificultad.minas;
+  const objetivo = Math.max(6, Math.round(sinMina * PROPORCION_APERTURA));
+
+  let mejor = null;
+
+  for (let intento = 0; intento < INTENTOS_APERTURA; intento += 1) {
+    const sorteo = crearPartidaBuscaminas(dificultadId);
+
+    revelarCelda(
+      sorteo,
+      Math.floor(Math.random() * sorteo.filas),
+      Math.floor(Math.random() * sorteo.columnas)
+    );
+
+    const minas = obtenerMinas(sorteo);
+    const limpio = crearPartidaBuscaminas(dificultadId);
+
+    sembrarMinas(limpio, minas);
+
+    const apertura = elegirAperturaMinima(limpio);
+
+    if (!apertura) {
+      continue;
+    }
+
+    if (!mejor || apertura.destapadas < mejor.apertura.destapadas) {
+      mejor = { minas, apertura };
+    }
+
+    if (apertura.destapadas <= objetivo) {
+      break;
+    }
+  }
+
+  return mejor;
 }
 
 function obtenerPartida(sala, socketId) {
