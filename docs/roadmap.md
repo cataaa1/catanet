@@ -42,6 +42,8 @@ Lo que convierte el v1 en el proyecto que describe el hub.
 - [x] ~~Buscaminas cooperativo~~ — listo, en `backend/buscaminasRooms.js`
 - [x] ~~Buscaminas versus~~ — listo, mismo tablero para los dos
 - [ ] **Buscaminas sin adivinanza** — solver que garantice tableros deducibles
+- [x] ~~Sudoku diario~~ — un tablero experto por día, el mismo para todo el mundo
+- [x] ~~Carrera de Sudoku~~ — hasta seis personas, gana quien resuelve primero
 - [ ] **Sudoku cooperativo** — mismo tablero, varias personas en tiempo real
 - [ ] **Sudoku versus** — mismo tablero, gana quien completa primero
 - [x] ~~Ajedrez~~ — descartado: necesita un motor de evaluación propio, que es un

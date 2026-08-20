@@ -48,6 +48,9 @@ CataNet/
 │   ├── rooms.js                 ← salas del Co-Wordle por turnos
 │   ├── versusRooms.js           ← salas del Versus por tiempo
 │   ├── buscaminasRooms.js      ← salas del Buscaminas coop y versus
+│   ├── sudokuRooms.js          ← salas de la Carrera de Sudoku
+│   ├── sudokuDiario.js         ← genera y cachea el Sudoku del día
+│   └── workers/                ← generación pesada fuera del hilo principal
 │   └── words.js                 ← lista de palabras
 └── frontend/
     ├── hub/
@@ -69,7 +72,9 @@ CataNet/
     │   └── versus-tiempo/       ← online
     ├── sudoku/
     │   ├── index.html           ← menú de la familia Sudoku
-    │   └── individual/
+    │   ├── individual/
+    │   ├── diario/              ← tablero del día, servido por el backend
+    │   └── carrera/             ← online
     └── buscaminas/
         ├── index.html           ← menú de la familia Buscaminas
         ├── assets/              ← mina y bandera en pixel art
@@ -122,13 +127,13 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 - [x] Frontend: hub principal con catálogo compartido
 - [x] Wordle: menú de familia + individual + custom + versus por tiempo
 - [x] Co-Wordle: cooperativo por turnos, online
-- [x] Sudoku: menú de familia + modo individual con tres dificultades
+- [x] Sudoku: individual, diario (experto, uno por día) y carrera online
 - [x] Buscaminas: motor compartido, menú de familia y los tres modos
 
 ### Pendiente
 - [ ] Deploy en un host con WebSockets (hoy sólo corre en localhost)
 - [ ] Probar de punta a punta los modos online con dos clientes reales
-- [ ] Sudoku: modos cooperativo y versus
+- [ ] Sudoku: modo cooperativo
 - [ ] Persistencia de la partida en curso (hoy no se usa `localStorage`)
 - [ ] Tests
 

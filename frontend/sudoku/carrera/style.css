@@ -1,0 +1,177 @@
+/* Estilos propios de la carrera, encima de los del Sudoku individual */
+
+.app--carrera {
+  display: flex;
+  align-items: center;
+}
+
+body {
+  overflow: auto;
+}
+
+/* --- Pantalla de inicio --- */
+
+.panel--inicio {
+  width: min(560px, 100%);
+  height: auto;
+  margin: 0 auto;
+  text-align: center;
+  gap: 0;
+}
+
+.marca {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(223, 244, 255, 0.7);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.panel--inicio h1 {
+  font-size: clamp(28px, 4.5vw, 40px);
+}
+
+.intro {
+  margin: 14px auto 22px;
+  max-width: 46ch;
+  color: rgba(245, 251, 255, 0.78);
+  line-height: 1.6;
+}
+
+.dificultades--centro {
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.acciones-inicio {
+  display: flex;
+  justify-content: center;
+}
+
+.union {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(223, 244, 255, 0.14);
+}
+
+.union__label {
+  display: block;
+  margin-bottom: 10px;
+  color: rgba(245, 251, 255, 0.7);
+  font-size: 13px;
+}
+
+.union__fila {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.campo {
+  width: 120px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(223, 244, 255, 0.24);
+  background: rgba(0, 0, 0, 0.24);
+  color: var(--texto-claro);
+  font: inherit;
+  text-align: center;
+  letter-spacing: 0.2em;
+}
+
+.btn-volver--suelto {
+  margin-top: 22px;
+}
+
+/* --- Pantalla de juego --- */
+
+.panel--juego {
+  height: 100%;
+}
+
+.juego-header__lado--derecha {
+  gap: 8px;
+}
+
+.sala-codigo__valor {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.titulo-carrera {
+  font-size: clamp(20px, 3vw, 30px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ranking {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.corredor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(223, 244, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+}
+
+.corredor--yo {
+  border-color: var(--acento-borde);
+}
+
+.corredor--fuera {
+  opacity: 0.45;
+}
+
+.corredor__color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.corredor__barra {
+  display: block;
+  width: 90px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.corredor__barra span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.corredor__dato {
+  color: rgba(245, 251, 255, 0.72);
+  font-variant-numeric: tabular-nums;
+}
+
+.corona {
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--acento);
+  color: #0b1724;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1000px) {
+  .corredor__barra {
+    width: 60px;
+  }
+}

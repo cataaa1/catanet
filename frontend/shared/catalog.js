@@ -56,6 +56,32 @@ export const modos = [
     icono: '/hub/assets/logo-sudoku.png'
   },
   {
+    id: 'sudoku-diario',
+    familiaId: 'sudoku',
+    titulo: 'Sudoku diario',
+    descripcion: 'Un tablero experto por dia, el mismo para todo el mundo. Sin pistas, para poder comparar tiempos.',
+    ruta: '/sudoku/diario/',
+    estado: 'en-vivo',
+    accion: 'Jugar el de hoy',
+    tipo: 'solo',
+    jugadores: '1 jugador',
+    online: false,
+    icono: '/hub/assets/logo-sudoku.png'
+  },
+  {
+    id: 'sudoku-carrera',
+    familiaId: 'sudoku',
+    titulo: 'Carrera de Sudoku',
+    descripcion: 'Hasta seis personas con el mismo tablero: gana quien lo resuelve primero, sin limite de tiempo.',
+    ruta: '/sudoku/carrera/',
+    estado: 'en-vivo',
+    accion: 'Correr',
+    tipo: 'versus',
+    jugadores: '2 a 6 jugadores',
+    online: true,
+    icono: '/hub/assets/logo-sudoku.png'
+  },
+  {
     id: 'buscaminas-individual',
     familiaId: 'buscaminas',
     titulo: 'Buscaminas individual',

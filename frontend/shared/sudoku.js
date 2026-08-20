@@ -29,6 +29,17 @@ export const DIFICULTADES_SUDOKU = [
     descripcion: 'Menos jugadas obvias al comienzo y mas cruces para deducir.'
   },
   {
+    id: 'experto',
+    etiqueta: 'Experto',
+    givens: 28,
+    intentos: 4,
+    reglas: {
+      maxSingles: 0,
+      minPromedioCandidatos: 3.4
+    },
+    descripcion: 'Sin ninguna jugada obvia de entrada: hay que cruzar datos desde la primera lectura.'
+  },
+  {
     id: 'dificil',
     etiqueta: 'Dificil',
     givens: 30,
@@ -49,10 +60,20 @@ export function obtenerDificultadSudoku(dificultadId) {
   return DIFICULTADES_POR_ID.get(dificultadId) || DIFICULTADES_POR_ID.get('medio');
 }
 
-export function crearPartidaSudoku(dificultadId = 'medio') {
+/**
+ * Crea una partida.
+ * @param {string} dificultadId
+ * @param {Object} [opciones]
+ * @param {number} [opciones.semilla] Si viene, el tablero es reproducible: la
+ *   misma semilla y la misma dificultad devuelven siempre el mismo tablero.
+ *   Es lo que hace posible el Sudoku diario y compartir un tablero por link.
+ */
+export function crearPartidaSudoku(dificultadId = 'medio', opciones = {}) {
   const dificultad = obtenerDificultadSudoku(dificultadId);
   const libreria = obtenerLibreriaSudoku();
-  const puzzle = generarPuzzleSegunDificultad(libreria, dificultad);
+  const puzzle = typeof opciones.semilla === 'number'
+    ? conAzarSembrado(libreria, opciones.semilla, () => generarPuzzleSegunDificultad(libreria, dificultad))
+    : generarPuzzleSegunDificultad(libreria, dificultad);
   const solucion = libreria.solve(puzzle);
 
   return {
@@ -163,6 +184,80 @@ export function obtenerRelacionCelda(fila, columna) {
 
 export function crearIdCelda(fila, columna) {
   return `${fila}-${columna}`;
+}
+
+/** Fecha del dia en Argentina (UTC-3), como 'AAAA-MM-DD'. */
+export function obtenerFechaDiaria(momento = new Date()) {
+  const enArgentina = new Date(momento.getTime() - (3 * 60 * 60 * 1000));
+
+  return enArgentina.toISOString().slice(0, 10);
+}
+
+/** Convierte una fecha 'AAAA-MM-DD' en la semilla del tablero de ese dia. */
+export function semillaDeFecha(fecha) {
+  let semilla = 2166136261;
+
+  for (let indice = 0; indice < fecha.length; indice += 1) {
+    semilla ^= fecha.charCodeAt(indice);
+    semilla = Math.imul(semilla, 16777619);
+  }
+
+  return semilla >>> 0;
+}
+
+/** Cuantas celdas del tablero coinciden con la solucion. Para el ranking. */
+export function contarCeldasCorrectas(tableroActual, tableroResuelto) {
+  let correctas = 0;
+
+  for (let fila = 0; fila < TAMANIO; fila += 1) {
+    for (let columna = 0; columna < TAMANIO; columna += 1) {
+      if (tableroActual[fila][columna]
+        && tableroActual[fila][columna] === tableroResuelto[fila][columna]) {
+        correctas += 1;
+      }
+    }
+  }
+
+  return correctas;
+}
+
+// La libreria saca todo su azar de _rand_range, asi que reemplazandola por una
+// version con semilla, la generacion entera se vuelve reproducible.
+function conAzarSembrado(libreria, semilla, accion) {
+  const original = libreria._rand_range;
+  const azar = crearAzarConSemilla(semilla);
+
+  libreria._rand_range = function (max, min) {
+    const desde = min || 0;
+
+    if (!max) {
+      throw new Error('Rango indefinido al generar el Sudoku.');
+    }
+
+    return Math.floor(azar() * (max - desde)) + desde;
+  };
+
+  try {
+    return accion();
+  } finally {
+    libreria._rand_range = original;
+  }
+}
+
+// mulberry32: chico, rapido y con buena distribucion para lo que necesitamos
+function crearAzarConSemilla(semilla) {
+  let estado = semilla >>> 0;
+
+  return function siguiente() {
+    estado = (estado + 0x6d2b79f5) >>> 0;
+
+    let valor = estado;
+
+    valor = Math.imul(valor ^ (valor >>> 15), valor | 1);
+    valor ^= valor + Math.imul(valor ^ (valor >>> 7), valor | 61);
+
+    return ((valor ^ (valor >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
 function obtenerLibreriaSudoku() {

@@ -1,0 +1,102 @@
+/* Ajustes propios del diario, encima de los estilos del Sudoku individual */
+
+.cinta-diaria {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.cinta-diaria strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cinta-diaria span {
+  color: rgba(245, 251, 255, 0.6);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.marcador-diario {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.marcador-diario__label {
+  color: rgba(245, 251, 255, 0.62);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.marcador-diario__valor {
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* El panel de ayuda no existe en el individual, asi que va completo aca */
+.ayuda-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(7, 15, 24, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.ayuda {
+  position: relative;
+  width: min(600px, 100%);
+  max-height: min(680px, calc(100dvh - 48px));
+  overflow: auto;
+  padding: 28px;
+  border-radius: 24px;
+  background: rgba(17, 30, 43, 0.97);
+  border: 1px solid rgba(223, 244, 255, 0.2);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.44);
+}
+
+.ayuda__cerrar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.ayuda h2 {
+  margin-bottom: 12px;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.ayuda p {
+  color: rgba(245, 251, 255, 0.84);
+  line-height: 1.55;
+}
+
+.reglas-lista {
+  margin-top: 16px;
+  padding-left: 20px;
+  color: rgba(245, 251, 255, 0.84);
+  line-height: 1.7;
+}
+
+.btn--icono {
+  width: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0;
+  border: 1px solid rgba(223, 244, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--acento);
+  font-size: 18px;
+}

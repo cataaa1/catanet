@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CataNet | Carrera de Sudoku</title>
+  <meta
+    name="description"
+    content="Carrera de Sudoku en CataNet: el mismo tablero para todos y gana quien lo resuelve primero."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/sudoku/individual/style.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="fondo" aria-hidden="true">
+    <div class="fondo__gradiente"></div>
+    <div class="fondo__halo fondo__halo--uno"></div>
+    <div class="fondo__halo fondo__halo--dos"></div>
+  </div>
+
+  <main class="app app--carrera">
+    <section class="panel panel--inicio" id="panel-inicio">
+      <span class="marca">CataNet</span>
+      <h1>Carrera de Sudoku</h1>
+      <p class="intro">
+        El mismo tablero para todo el mundo y gana quien lo resuelve primero.
+        Sin reloj de por medio: la carrera termina cuando alguien lo completa.
+      </p>
+
+      <div class="dificultades dificultades--centro" id="grupo-dificultades" role="group" aria-label="Elegir dificultad">
+        <button class="chip-dificultad" data-dificultad="facil" type="button">Facil</button>
+        <button class="chip-dificultad is-active" data-dificultad="medio" type="button">Medio</button>
+        <button class="chip-dificultad" data-dificultad="dificil" type="button">Dificil</button>
+      </div>
+
+      <div class="acciones-inicio">
+        <button class="btn btn--primario" id="boton-crear" type="button">Nueva carrera</button>
+      </div>
+
+      <div class="union">
+        <label class="union__label" for="input-sala">Unirse con codigo</label>
+        <div class="union__fila">
+          <input class="campo" id="input-sala" type="text" maxlength="4" placeholder="a1b2"
+            inputmode="text" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false">
+          <button class="btn btn--secundario" id="boton-unirse" type="button">Unirse</button>
+        </div>
+      </div>
+
+      <a class="btn-volver btn-volver--suelto" href="/sudoku/">&larr; Volver al menu</a>
+    </section>
+
+    <section class="panel panel--juego" id="panel-juego" hidden>
+      <header class="juego-header">
+        <div class="juego-header__lado">
+          <a class="btn-volver" href="/sudoku/">&larr; Volver</a>
+          <div class="sala-codigo">
+            <p class="eyebrow">Sala</p>
+            <p class="sala-codigo__valor" id="texto-sala">----</p>
+          </div>
+        </div>
+        <div class="juego-header__centro">
+          <h1 class="titulo-carrera">Carrera</h1>
+        </div>
+        <div class="juego-header__lado juego-header__lado--derecha">
+          <button class="btn btn--secundario btn--chico" id="boton-copiar" type="button">Copiar link</button>
+          <button class="btn btn--primario btn--chico" id="boton-revancha" type="button" hidden>Otra carrera</button>
+        </div>
+      </header>
+
+      <section class="ranking" id="ranking" aria-label="Avance de cada jugador"></section>
+
+      <div class="contenido">
+        <aside class="controles" aria-label="Teclado">
+          <div class="numpad" id="numpad" role="group" aria-label="Teclado numerico">
+            <button class="numpad__tecla" data-valor="1" type="button">1</button>
+            <button class="numpad__tecla" data-valor="2" type="button">2</button>
+            <button class="numpad__tecla" data-valor="3" type="button">3</button>
+            <button class="numpad__tecla" data-valor="4" type="button">4</button>
+            <button class="numpad__tecla" data-valor="5" type="button">5</button>
+            <button class="numpad__tecla" data-valor="6" type="button">6</button>
+            <button class="numpad__tecla" data-valor="7" type="button">7</button>
+            <button class="numpad__tecla" data-valor="8" type="button">8</button>
+            <button class="numpad__tecla" data-valor="9" type="button">9</button>
+          </div>
+          <button class="btn btn--secundario btn--chico" id="boton-borrar" type="button">Borrar celda</button>
+        </aside>
+
+        <section class="juego" aria-label="Tablero de Sudoku">
+          <div class="tablero-wrap">
+            <div class="tablero" id="tablero" role="grid" aria-label="Tablero de Sudoku 9 por 9"></div>
+            <div class="tablero__velo" id="velo-generando" hidden>
+              <span class="tablero__spinner" aria-hidden="true"></span>
+              <span id="texto-velo">Esperando gente...</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <p class="sr-only" id="texto-estado" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <section class="resultado-modal" id="panel-resultado" hidden aria-labelledby="resultado-titulo" role="dialog" aria-modal="true">
+    <div class="resultado" role="document">
+      <p class="eyebrow">Carrera terminada</p>
+      <h2 id="resultado-titulo">Resultado</h2>
+      <p id="resultado-texto"></p>
+      <div class="resultado__acciones">
+        <button class="btn btn--primario" id="boton-revancha-modal" type="button">Otra carrera</button>
+        <a class="btn btn--secundario" href="/sudoku/">Volver al menu</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

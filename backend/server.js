@@ -41,6 +41,25 @@ const {
   iniciarLimpiezaBuscaminasPeriodica
 } = require('./buscaminasRooms');
 
+const {
+  prepararMotorSalasSudoku,
+  crearSalaSudoku,
+  obtenerSalaSudokuPorSocket,
+  unirseASalaSudoku,
+  arrancarCarrera,
+  registrarJugadaSudoku,
+  reiniciarSalaSudoku,
+  obtenerEstadoSudokuPublico,
+  registrarDesconexionSudoku,
+  cerrarSalaSudoku,
+  iniciarLimpiezaSudokuPeriodica
+} = require('./sudokuRooms');
+const {
+  cargarMotorSudoku,
+  pedirSudokuDiario,
+  precalentarSudokuDiario
+} = require('./sudokuDiario');
+
 const PUERTO = Number(process.env.PORT) || 3000;
 const app = express();
 const servidorHttp = http.createServer(app);
@@ -72,6 +91,23 @@ app.use((solicitud, respuesta, siguiente) => {
 // queden disponibles con rutas simples como /hub/ o /co-wordle/.
 app.use(express.static(rutaFrontend));
 
+// El tablero del dia: el mismo para todo el mundo, generado una vez por dia
+app.get('/api/sudoku/diario', async (_solicitud, respuesta) => {
+  try {
+    const pedido = await pedirSudokuDiario();
+
+    if (!pedido.listo) {
+      respuesta.status(202).json({ listo: false, fecha: pedido.fecha });
+      return;
+    }
+
+    respuesta.json({ listo: true, ...pedido.tablero });
+  } catch (error) {
+    console.error('Error al servir el Sudoku diario:', error);
+    respuesta.status(500).json({ error: 'No pude preparar el tablero de hoy.' });
+  }
+});
+
 app.get('/salud', (_solicitud, respuesta) => {
   respuesta.json({
     ok: true,
@@ -95,6 +131,7 @@ app.get('/', (_solicitud, respuesta) => {
 iniciarLimpiezaPeriodica();
 iniciarLimpiezaVersusPeriodica();
 iniciarLimpiezaBuscaminasPeriodica();
+iniciarLimpiezaSudokuPeriodica();
 
 io.on('connection', (socket) => {
   manejarEventoSeguro(socket, 'crear-sala', (payload) => {
@@ -332,12 +369,92 @@ io.on('connection', (socket) => {
     cerrarSalaBuscaminas(sala.id);
   });
 
+  manejarEventoSeguro(socket, 'sudoku-crear-sala', (payload) => {
+    const opciones = payload && typeof payload === 'object' ? payload : {};
+    const sala = crearSalaSudoku(socket.id, { dificultad: opciones.dificultad });
+
+    socket.join(sala.id);
+
+    socket.emit('sudoku-sala-creada', {
+      salaId: sala.id,
+      link: construirLinkPorRuta(socket, sala.id, '/sudoku/carrera/'),
+      estado: obtenerEstadoSudokuPublico(sala, socket.id)
+    });
+  });
+
+  manejarEventoSeguro(socket, 'sudoku-unirse-sala', ({ salaId }) => {
+    const { sala, debeArrancar } = unirseASalaSudoku(salaId, socket.id);
+
+    socket.join(sala.id);
+
+    if (!debeArrancar) {
+      emitirEstadoSudoku(sala, 'sudoku-estado');
+      return;
+    }
+
+    // Generar el tablero tarda, asi que primero avisamos y despues repartimos
+    emitirEstadoSudoku(sala, 'sudoku-estado');
+
+    arrancarCarrera(sala)
+      .then(() => emitirEstadoSudoku(sala, 'sudoku-partida-iniciada'))
+      .catch((error) => {
+        sala.fase = 'esperando';
+        io.to(sala.id).emit('error-sala', { mensaje: error.message });
+      });
+  });
+
+  manejarEventoSeguro(socket, 'sudoku-jugada', ({ salaId, fila, columna, valor }) => {
+    const resultado = registrarJugadaSudoku(
+      salaId, socket.id, Number(fila), Number(columna), valor
+    );
+
+    emitirEstadoSudoku(resultado.sala, 'sudoku-jugada-registrada');
+
+    if (resultado.resultadoFinal) {
+      emitirEstadoSudoku(resultado.sala, 'sudoku-partida-terminada', {
+        extra: resultado.resultadoFinal
+      });
+    }
+  });
+
+  manejarEventoSeguro(socket, 'sudoku-reiniciar', ({ salaId }) => {
+    const sala = reiniciarSalaSudoku(salaId, socket.id);
+
+    emitirEstadoSudoku(sala, 'sudoku-estado');
+
+    arrancarCarrera(sala)
+      .then(() => emitirEstadoSudoku(sala, 'sudoku-partida-iniciada'))
+      .catch((error) => {
+        sala.fase = 'terminada';
+        io.to(sala.id).emit('error-sala', { mensaje: error.message });
+      });
+  });
+
+  manejarEventoSeguro(socket, 'sudoku-cerrar-sala', ({ salaId }) => {
+    const sala = obtenerSalaSudokuPorSocket(socket.id);
+
+    if (!sala || sala.id !== salaId) {
+      return;
+    }
+
+    io.to(sala.id).emit('sudoku-sala-cerrada', { jugadorId: socket.id });
+    cerrarSalaSudoku(sala.id);
+  });
+
   socket.on('disconnect', () => {
     try {
       const resultado = registrarDesconexion(socket.id);
 
       if (resultado && resultado.hayOtroJugadorConectado) {
         socket.to(resultado.salaId).emit('jugador-desconectado');
+      }
+
+      const resultadoSudoku = registrarDesconexionSudoku(socket.id);
+
+      if (resultadoSudoku && resultadoSudoku.hayOtroJugadorConectado) {
+        socket.to(resultadoSudoku.salaId).emit('sudoku-jugador-desconectado', {
+          jugadorId: socket.id
+        });
       }
 
       const resultadoBuscaminas = registrarDesconexionBuscaminas(socket.id);
@@ -370,10 +487,15 @@ async function iniciarServidor() {
     // El motor del Buscaminas es un modulo ES y este archivo es CommonJS, asi
     // que se carga con import() dinamico antes de empezar a escuchar.
     await cargarMotorBuscaminas();
+    await cargarMotorSudoku();
+    await prepararMotorSalasSudoku();
   } catch (error) {
     console.error('No pude cargar el motor del Buscaminas:', error);
     process.exit(1);
   }
+
+  // Arrancamos a generar el tablero del dia ya mismo, para que nadie lo espere
+  precalentarSudokuDiario();
 
   servidorHttp.listen(PUERTO, () => {
     console.log(`Servidor de CataNet escuchando en http://localhost:${PUERTO}`);
@@ -382,6 +504,18 @@ async function iniciarServidor() {
 
 function rutaDeBuscaminas(modo) {
   return modo === 'versus' ? '/buscaminas/versus/' : '/buscaminas/cooperativo/';
+}
+
+// Cada persona ve su propio tablero, asi que el estado va personalizado
+function emitirEstadoSudoku(sala, evento, opciones = {}) {
+  const { extra = {} } = opciones;
+
+  sala.ordenJugadores.forEach((jugadorId) => {
+    io.to(jugadorId).emit(evento, {
+      ...extra,
+      estado: obtenerEstadoSudokuPublico(sala, jugadorId)
+    });
+  });
 }
 
 // En versus cada persona ve su propio tablero, asi que el estado va personalizado

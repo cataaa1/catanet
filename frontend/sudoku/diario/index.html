@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CataNet | Sudoku diario</title>
+  <meta
+    name="description"
+    content="El Sudoku del dia en CataNet: un tablero experto, el mismo para todo el mundo, que cambia a la medianoche."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/sudoku/individual/style.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="fondo" aria-hidden="true">
+    <div class="fondo__gradiente"></div>
+    <div class="fondo__halo fondo__halo--uno"></div>
+    <div class="fondo__halo fondo__halo--dos"></div>
+  </div>
+
+  <main class="app">
+    <section class="panel">
+      <header class="juego-header">
+        <div class="juego-header__lado">
+          <a class="btn-volver" href="/sudoku/">&larr; Volver</a>
+        </div>
+        <div class="juego-header__centro">
+          <p class="eyebrow">Desafio del dia</p>
+          <h1>Sudoku diario</h1>
+        </div>
+        <div class="juego-header__lado juego-header__lado--derecha">
+          <button class="btn btn--icono" id="boton-ayuda" type="button" aria-label="Ver reglas">?</button>
+        </div>
+      </header>
+
+      <section class="configuracion" aria-label="Datos del desafio">
+        <p class="cinta-diaria">
+          <strong id="texto-fecha">Cargando...</strong>
+          <span>Mismo tablero para todo el mundo</span>
+        </p>
+      </section>
+
+      <div class="contenido">
+        <aside class="controles" aria-label="Controles del tablero">
+          <div class="marcador-diario">
+            <span class="marcador-diario__label">Tiempo</span>
+            <strong class="marcador-diario__valor" id="texto-reloj">00:00</strong>
+          </div>
+
+          <div class="marcador-diario">
+            <span class="marcador-diario__label">Completado</span>
+            <strong class="marcador-diario__valor" id="texto-progreso">0 / 81</strong>
+          </div>
+
+          <div class="numpad" id="numpad" role="group" aria-label="Teclado numerico">
+            <button class="numpad__tecla" data-valor="1" type="button">1</button>
+            <button class="numpad__tecla" data-valor="2" type="button">2</button>
+            <button class="numpad__tecla" data-valor="3" type="button">3</button>
+            <button class="numpad__tecla" data-valor="4" type="button">4</button>
+            <button class="numpad__tecla" data-valor="5" type="button">5</button>
+            <button class="numpad__tecla" data-valor="6" type="button">6</button>
+            <button class="numpad__tecla" data-valor="7" type="button">7</button>
+            <button class="numpad__tecla" data-valor="8" type="button">8</button>
+            <button class="numpad__tecla" data-valor="9" type="button">9</button>
+          </div>
+
+          <button class="btn btn--secundario btn--chico" id="boton-borrar" type="button">Borrar celda</button>
+        </aside>
+
+        <section class="juego" aria-label="Tablero de Sudoku">
+          <div class="tablero-wrap">
+            <div class="tablero" id="tablero" role="grid" aria-label="Tablero de Sudoku 9 por 9"></div>
+            <div class="tablero__velo" id="velo-generando">
+              <span class="tablero__spinner" aria-hidden="true"></span>
+              <span id="texto-velo">Preparando el tablero de hoy...</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <p class="sr-only" id="texto-estado" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <section class="ayuda-modal" id="panel-ayuda" hidden aria-labelledby="ayuda-titulo" role="dialog" aria-modal="true">
+    <div class="ayuda" role="document">
+      <button class="btn btn--icono ayuda__cerrar" id="boton-cerrar-ayuda" type="button" aria-label="Cerrar reglas">&times;</button>
+      <p class="eyebrow">Reglas</p>
+      <h2 id="ayuda-titulo">Como funciona el diario</h2>
+      <p>
+        Todos los dias hay un tablero nuevo, y es <strong>el mismo para todo el
+        mundo</strong>. Cambia a la medianoche, hora de Argentina.
+      </p>
+      <ul class="reglas-lista">
+        <li>Completa la grilla con los digitos del 1 al 9, sin repetir ninguno en la misma fila, columna ni bloque de 3x3.</li>
+        <li>Es de dificultad <strong>experto</strong>: arranca sin ninguna jugada obvia, hay que cruzar datos desde la primera lectura.</li>
+        <li>No hay pistas ni deshacer, a proposito: si todos resuelven el mismo tablero sin ayudas, los tiempos se pueden comparar.</li>
+        <li>Las celdas repetidas se marcan en rojo mientras jugas.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="resultado-modal" id="panel-resultado" hidden aria-labelledby="resultado-titulo" role="dialog" aria-modal="true">
+    <div class="resultado" role="document">
+      <p class="eyebrow">Desafio del dia</p>
+      <h2 id="resultado-titulo">Lo resolviste</h2>
+      <p id="resultado-texto"></p>
+      <div class="resultado__acciones">
+        <a class="btn btn--secundario" href="/sudoku/">Volver al menu</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/shared/vendor/sudoku-lib.js"></script>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

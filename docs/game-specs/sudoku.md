@@ -4,9 +4,8 @@
 Sudoku clásico de 9x9. Hay que completar la grilla con los dígitos 1 a 9 sin
 repetir ninguno en la misma fila, columna ni bloque de 3x3.
 
-Hoy existe un solo modo: **individual** (`/sudoku/individual/`), offline, sin
-servidor ni salas. Los modos cooperativo y versus están planeados pero no
-construidos.
+Hay tres modos: **individual** y **diario**, que corren en el navegador, y
+**carrera**, que es online. El cooperativo sigue planeado.
 
 ## Generación de tableros
 
@@ -100,7 +99,81 @@ servidor, así que no tiene sentido ocultarla.
 - Las celdas en conflicto se marcan en rojo
 - Bordes más marcados cada 3 columnas y cada 3 filas, para separar los bloques
 
+## Modo diario
+
+Un tablero por día, **el mismo para todo el mundo**, que cambia a la medianoche
+hora de Argentina (UTC-3).
+
+### Cómo se consigue que sea el mismo para todos
+La librería externa saca todo su azar de una sola función, `_rand_range`. El
+motor la reemplaza temporalmente por un generador con semilla (mulberry32), así
+que la misma semilla produce siempre el mismo tablero. La semilla sale de la
+fecha, con lo cual el tablero del día es reproducible incluso si el servidor se
+reinicia.
+
+### Por qué lo genera el servidor y no el navegador
+Generar es caro y muy variable. Medido en esta máquina:
+
+| Pistas | Tiempo por tablero |
+|---|---|
+| 34 (fácil/medio) | ~220 ms |
+| 30 (difícil) | ~1,8 s |
+| 28 (experto) | ~6,4 s |
+
+Un tablero experto tarda unos 20 segundos en salir, contando los reintentos que
+hacen falta para que cumpla las reglas de dificultad. Eso es inaceptable en el
+navegador, así que lo genera el servidor **una vez por día** y lo cachea:
+
+- Corre en un **worker thread**, no en el hilo principal. Si no, el servidor se
+  quedaría sin responder veinte segundos y cortaría las partidas online en curso.
+- Se dispara al arrancar el servidor, para que nadie tenga que esperarlo.
+- El endpoint `GET /api/sudoku/diario` contesta `202` con `{ listo: false }`
+  mientras se genera, en vez de dejar la petición colgada. El cliente vuelve a
+  preguntar cada segundo y medio.
+
+### Dificultad
+Usa la dificultad `experto`: 28 pistas, sin ninguna jugada obvia de entrada
+(`maxSingles: 0`) y con un promedio alto de candidatos por celda.
+
+### Sin ayudas, a propósito
+No tiene pistas, borrador ni deshacer. Si la gracia es que todos resuelvan el
+mismo tablero, las ayudas arruinan la comparación de tiempos.
+
+## Modo carrera (online)
+
+Hasta seis personas, **el mismo tablero para todas**, y gana quien lo completa
+primero. No hay límite de tiempo: un Sudoku lleva su rato y cortar por reloj
+dejaría casi todas las partidas sin ganador.
+
+- Cada quien juega su propia copia del tablero.
+- Se ve el avance del resto en vivo, con una barra por persona, pero no su
+  tablero.
+- Se puede entrar con la carrera empezada, arrancando desde el tablero original.
+
+### El servidor es el árbitro
+A diferencia del Buscaminas, acá **no hay información oculta**: cualquiera puede
+resolver el tablero a partir de las pistas, así que esconder la solución no
+protegería nada. Lo que sí importa es que el conteo sea confiable, y por eso el
+servidor guarda el tablero de cada persona, cuenta cuántas celdas coinciden con
+la solución y decide quién terminó. La solución recién viaja al cliente cuando la
+carrera termina.
+
+### Eventos de Socket.io
+
+| Evento | Dirección | Qué hace |
+|---|---|---|
+| `sudoku-crear-sala` | C→S | Crea la sala con una dificultad |
+| `sudoku-unirse-sala` | C→S | Se suma a una sala |
+| `sudoku-jugada` | C→S | Escribe o borra una celda |
+| `sudoku-reiniciar` | C→S | Otra carrera con tablero nuevo |
+| `sudoku-sala-creada` | S→C | Devuelve id y link |
+| `sudoku-estado` | S→C | Estado, incluido mientras se genera |
+| `sudoku-partida-iniciada` | S→C | Reparte el tablero |
+| `sudoku-jugada-registrada` | S→C | Avance actualizado de todos |
+| `sudoku-partida-terminada` | S→C | Ganador y solución |
+
 ## Modos planeados
+
 
 ### Sudoku cooperativo
 Dos o más personas resolviendo el mismo tablero en tiempo real, cada una con un
