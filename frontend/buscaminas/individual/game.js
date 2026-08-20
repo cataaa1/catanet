@@ -13,6 +13,13 @@ import { habilitarCierreResultado } from '/shared/resultado.js';
 const RUTA_MINA = '/buscaminas/assets/mina.png';
 const RUTA_BANDERA = '/buscaminas/assets/bandera.png';
 const MS_PULSACION_LARGA = 450;
+const LADO_MINIMO = 18;
+const LADO_MAXIMO = 64;
+const SEPARACION_CELDAS = 2;
+const PADDING_TABLERO = 10;
+const ANCHO_CONTROLES = 216;
+const SEPARACION_COLUMNAS = 24;
+const ALTO_RESERVADO = 218;
 
 const elementos = {
   tablero: document.getElementById('tablero'),
@@ -21,6 +28,9 @@ const elementos = {
   textoEstado: document.getElementById('texto-estado'),
   grupoDificultades: document.getElementById('grupo-dificultades'),
   botonNueva: document.getElementById('boton-nueva'),
+  botonAyuda: document.getElementById('boton-ayuda'),
+  botonCerrarAyuda: document.getElementById('boton-cerrar-ayuda'),
+  panelAyuda: document.getElementById('panel-ayuda'),
   botonModoBandera: document.getElementById('boton-modo-bandera'),
   estadoModoBandera: document.getElementById('estado-modo-bandera'),
   panelResultado: document.getElementById('panel-resultado'),
@@ -56,6 +66,16 @@ function enlazarEventos() {
   elementos.botonNueva.addEventListener('click', () => iniciarNuevaPartida(estado.dificultad));
   elementos.botonReiniciar.addEventListener('click', () => iniciarNuevaPartida(estado.dificultad));
   elementos.botonModoBandera.addEventListener('click', alternarModoBandera);
+  elementos.botonAyuda.addEventListener('click', abrirAyuda);
+  elementos.botonCerrarAyuda.addEventListener('click', cerrarAyuda);
+  elementos.panelAyuda.addEventListener('click', (evento) => {
+    if (evento.target === elementos.panelAyuda) {
+      cerrarAyuda();
+    }
+  });
+
+  // Al cambiar el tamano de la ventana recalculamos la celda, sin rearmar nada
+  addEventListener('resize', ajustarLadoCelda);
 
   // El click derecho pone bandera y no abre el menu del navegador
   elementos.tablero.addEventListener('contextmenu', (evento) => {
@@ -76,7 +96,12 @@ function enlazarEventos() {
   elementos.tablero.addEventListener('pointerleave', cancelarPulsacion);
 
   document.addEventListener('keydown', (evento) => {
-    if (evento.key.toLowerCase() === 'b') {
+    if (evento.key === 'Escape' && !elementos.panelAyuda.hidden) {
+      cerrarAyuda();
+      return;
+    }
+
+    if (elementos.panelAyuda.hidden && evento.key.toLowerCase() === 'b') {
       alternarModoBandera();
     }
   });
@@ -199,6 +224,16 @@ function marcarCelda(fila, columna) {
   }
 }
 
+function abrirAyuda() {
+  elementos.panelAyuda.hidden = false;
+  elementos.botonCerrarAyuda.focus();
+}
+
+function cerrarAyuda() {
+  elementos.panelAyuda.hidden = true;
+  elementos.botonAyuda.focus();
+}
+
 function alternarModoBandera() {
   if (estado.partida.fase !== 'jugando') {
     return;
@@ -227,7 +262,7 @@ function terminarPartida(gano) {
   } else {
     elementos.resultadoEyebrow.textContent = 'Partida terminada';
     elementos.resultadoTitulo.textContent = 'Pisaste una mina';
-    elementos.resultadoTexto.textContent = `Aguantaste ${formatearReloj(estado.segundos)}. El tablero queda a la vista si cerras este cartel.`;
+    elementos.resultadoTexto.textContent = `Aguantaste ${formatearReloj(estado.segundos)} en dificultad ${dificultad.etiqueta.toLowerCase()}.`;
   }
 
   elementos.panelResultado.hidden = false;
@@ -287,16 +322,28 @@ function construirTablero() {
   elementos.tablero.appendChild(fragmento);
 }
 
-// El lado sale del espacio disponible, para que el tablero entre sin scroll
+// El lado sale del espacio que sobra, descontando el padding del tablero y las
+// separaciones entre celdas, para que el tablero entre completo y lo mas grande
+// posible. En mobile el alto no limita porque el tablero puede scrollear.
 function calcularLadoCelda(filas, columnas) {
+  const esEscritorio = innerWidth > 1000;
   const anchoPanel = Math.min(1180, innerWidth - 28) - 44;
-  const anchoDisponible = innerWidth > 1000 ? anchoPanel - 216 - 24 - 22 : anchoPanel - 22;
-  const altoDisponible = innerHeight - 218 - 22;
+  const anchoCaja = esEscritorio
+    ? anchoPanel - ANCHO_CONTROLES - SEPARACION_COLUMNAS
+    : anchoPanel;
 
-  const porAncho = anchoDisponible / columnas;
-  const porAlto = innerWidth > 1000 ? altoDisponible / filas : Infinity;
+  const anchoUtil = anchoCaja - (PADDING_TABLERO * 2) - 2 - ((columnas - 1) * SEPARACION_CELDAS);
+  const altoUtil = innerHeight - ALTO_RESERVADO - (PADDING_TABLERO * 2) - 2 - ((filas - 1) * SEPARACION_CELDAS);
 
-  return Math.max(18, Math.min(38, Math.floor(Math.min(porAncho, porAlto)) - 2));
+  const porAncho = anchoUtil / columnas;
+  const porAlto = esEscritorio ? altoUtil / filas : Infinity;
+
+  return Math.max(LADO_MINIMO, Math.min(LADO_MAXIMO, Math.floor(Math.min(porAncho, porAlto))));
+}
+
+function ajustarLadoCelda() {
+  const { filas, columnas } = estado.partida;
+  elementos.tablero.style.setProperty('--lado', `${calcularLadoCelda(filas, columnas)}px`);
 }
 
 function pintarCelda(fila, columna, malMarcada = false) {

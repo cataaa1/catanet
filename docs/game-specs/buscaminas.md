@@ -75,6 +75,10 @@ Corre entero en el cliente, sin servidor, igual que el Sudoku individual.
 
 - Selector de dificultad, contador de minas restantes y cronómetro que arranca en
   el primer click.
+- Botón `?` en el encabezado con las reglas, igual que en el Wordle. Se cierra con
+  la cruz, con Escape o tocando el fondo.
+- El lado de cada celda se calcula contra el espacio disponible, así que el tablero
+  se dibuja lo más grande que entre y se reajusta al cambiar el tamaño de ventana.
 - Al perder se revelan todas las minas y se marca en rojo la que se pisó.
 - Al ganar se llama a `festejar()` de `/shared/celebracion.js`.
 
