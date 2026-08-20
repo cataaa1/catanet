@@ -56,6 +56,7 @@ CataNet/
     │   ├── catalog.js           ← familias y modos (fuente de verdad de los menús)
     │   ├── words.js             ← palabras del lado cliente
     │   ├── sudoku.js            ← lógica compartida de Sudoku
+    │   ├── buscaminas.js        ← motor del Buscaminas (cliente y servidor)
     │   ├── celebracion.js       ← festejo al ganar (papel picado + pulso)
     │   ├── resultado.js         ← cruz para cerrar el panel de resultado
     │   └── vendor/sudoku-lib.js ← librería externa de generación/solución
@@ -65,8 +66,12 @@ CataNet/
     │   ├── individual/
     │   ├── custom/
     │   └── versus-tiempo/       ← online
-    └── sudoku/
-        ├── index.html           ← menú de la familia Sudoku
+    ├── sudoku/
+    │   ├── index.html           ← menú de la familia Sudoku
+    │   └── individual/
+    └── buscaminas/
+        ├── index.html           ← menú de la familia Buscaminas
+        ├── assets/              ← mina y bandera en pixel art
         └── individual/
 ```
 
@@ -114,11 +119,13 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 - [x] Wordle: menú de familia + individual + custom + versus por tiempo
 - [x] Co-Wordle: cooperativo por turnos, online
 - [x] Sudoku: menú de familia + modo individual con tres dificultades
+- [x] Buscaminas: motor compartido + menú de familia + modo individual
 
 ### Pendiente
 - [ ] Deploy en un host con WebSockets (hoy sólo corre en localhost)
 - [ ] Probar de punta a punta los modos online con dos clientes reales
 - [ ] Sudoku: modos cooperativo y versus
+- [ ] Buscaminas: modos cooperativo y versus (el motor y el spec ya están)
 - [ ] Ajedrez (sigue como `proximamente` en el catálogo)
 - [ ] Persistencia de la partida en curso (hoy no se usa `localStorage`)
 - [ ] Tests

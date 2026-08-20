@@ -18,6 +18,15 @@ export const familias = [
     icono: '/hub/assets/logo-sudoku.png'
   },
   {
+    id: 'buscaminas',
+    titulo: 'Buscaminas',
+    descripcion: 'Tableros con minas escondidas para despejar deduciendo, solo, en equipo o contra otra persona.',
+    ruta: '/buscaminas/',
+    estado: 'en-vivo',
+    accion: 'Jugar',
+    icono: '/hub/assets/logo-buscaminas.png'
+  },
+  {
     id: 'ajedrez',
     titulo: 'Ajedrez',
     descripcion: 'Partidas rapidas, salas privadas y modos contra computadora para practicar jugadas.',
@@ -54,6 +63,45 @@ export const modos = [
     jugadores: '1 jugador',
     online: false,
     icono: '/hub/assets/logo-sudoku.png'
+  },
+  {
+    id: 'buscaminas-individual',
+    familiaId: 'buscaminas',
+    titulo: 'Buscaminas individual',
+    descripcion: 'Tres dificultades clasicas, con banderas, cronometro y el primer click siempre seguro.',
+    ruta: '/buscaminas/individual/',
+    estado: 'en-vivo',
+    accion: 'Jugar',
+    tipo: 'solo',
+    jugadores: '1 jugador',
+    online: false,
+    icono: '/hub/assets/logo-buscaminas.png'
+  },
+  {
+    id: 'buscaminas-cooperativo',
+    familiaId: 'buscaminas',
+    titulo: 'Buscaminas cooperativo',
+    descripcion: 'Varias personas sobre un mismo tablero en tiempo real. Una sola mina termina la partida para todo el equipo.',
+    ruta: '/buscaminas/cooperativo/',
+    estado: 'proximamente',
+    accion: 'Disponible pronto',
+    tipo: 'coop',
+    jugadores: '2+ jugadores',
+    online: true,
+    icono: '/hub/assets/logo-buscaminas.png'
+  },
+  {
+    id: 'buscaminas-versus',
+    familiaId: 'buscaminas',
+    titulo: 'Buscaminas versus',
+    descripcion: 'El mismo tablero para los dos: gana quien despeja primero y pisar una mina es derrota inmediata.',
+    ruta: '/buscaminas/versus/',
+    estado: 'proximamente',
+    accion: 'Disponible pronto',
+    tipo: 'versus',
+    jugadores: '2 jugadores',
+    online: true,
+    icono: '/hub/assets/logo-buscaminas.png'
   },
   {
     id: 'wordle-individual',

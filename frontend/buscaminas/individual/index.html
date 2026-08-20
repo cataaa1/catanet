@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CataNet | Buscaminas individual</title>
+  <meta
+    name="description"
+    content="Buscaminas individual en CataNet con tres dificultades, banderas y cronometro."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="fondo" aria-hidden="true">
+    <div class="fondo__gradiente"></div>
+    <div class="fondo__halo fondo__halo--uno"></div>
+    <div class="fondo__halo fondo__halo--dos"></div>
+  </div>
+
+  <main class="app">
+    <section class="panel">
+      <header class="juego-header">
+        <div class="juego-header__lado">
+          <a class="btn-volver" href="/buscaminas/">&larr; Volver</a>
+        </div>
+        <div class="juego-header__centro">
+          <p class="eyebrow">Modo individual</p>
+          <h1>Buscaminas</h1>
+        </div>
+        <div class="juego-header__lado juego-header__lado--derecha">
+          <button class="btn btn--secundario btn--chico" id="boton-nueva" type="button">Nuevo tablero</button>
+        </div>
+      </header>
+
+      <section class="configuracion" aria-label="Configuracion de partida">
+        <div class="dificultades" id="grupo-dificultades" role="group" aria-label="Elegir dificultad">
+          <button class="chip-dificultad" data-dificultad="facil" type="button">Facil</button>
+          <button class="chip-dificultad" data-dificultad="medio" type="button">Medio</button>
+          <button class="chip-dificultad" data-dificultad="dificil" type="button">Dificil</button>
+        </div>
+      </section>
+
+      <div class="contenido">
+        <aside class="controles" aria-label="Estado de la partida">
+          <div class="marcador">
+            <img class="marcador__icono" src="/buscaminas/assets/mina.png" alt="" width="28" height="28">
+            <strong class="marcador__valor" id="texto-minas">10</strong>
+            <span class="marcador__label">Minas</span>
+          </div>
+
+          <div class="marcador">
+            <span class="marcador__icono marcador__icono--reloj" aria-hidden="true">&#9201;</span>
+            <strong class="marcador__valor" id="texto-reloj">00:00</strong>
+            <span class="marcador__label">Tiempo</span>
+          </div>
+
+          <button class="modo-bandera" id="boton-modo-bandera" type="button" aria-pressed="false">
+            <img src="/buscaminas/assets/bandera.png" alt="" width="26" height="26">
+            <span class="modo-bandera__texto">Modo bandera</span>
+            <span class="modo-bandera__estado" id="estado-modo-bandera">OFF</span>
+          </button>
+
+          <p class="ayuda-controles">
+            Click para descubrir. Click derecho o el modo bandera para marcar.
+            En un numero ya descubierto, con todas sus banderas puestas, el click
+            descubre las vecinas.
+          </p>
+        </aside>
+
+        <section class="juego" aria-label="Tablero de Buscaminas">
+          <div class="tablero-wrap">
+            <div class="tablero" id="tablero" role="grid" aria-label="Tablero de Buscaminas"></div>
+          </div>
+        </section>
+      </div>
+
+      <p class="sr-only" id="texto-estado" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <section class="resultado-modal" id="panel-resultado" hidden aria-labelledby="resultado-titulo" role="dialog" aria-modal="true">
+    <div class="resultado" role="document">
+      <p class="eyebrow" id="resultado-eyebrow">Partida terminada</p>
+      <h2 id="resultado-titulo">Ganaste</h2>
+      <p id="resultado-texto"></p>
+      <div class="resultado__acciones">
+        <button class="btn btn--primario" id="boton-reiniciar" type="button">Jugar otro</button>
+        <a class="btn btn--secundario" href="/buscaminas/">Volver al menu</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

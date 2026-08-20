@@ -23,6 +23,7 @@ mínimos para que el proyecto haga lo que promete.
       El catálogo es la fuente de verdad de los menús; un modo mal declarado
       manda a un 404 sin avisar.
 - [x] Documentación del Sudoku (`docs/game-specs/sudoku.md`)
+- [x] Documentación del Buscaminas (`docs/game-specs/buscaminas.md`)
 - [ ] **Actualizar `docs/game-specs/co-wordle.md`.**
       El spec describe un juego simultáneo y competitivo, con un tablero por
       jugador. Lo implementado en `backend/rooms.js` es **cooperativo por turnos**,
@@ -38,6 +39,11 @@ alguien y juegan.
 Lo que convierte el v1 en el proyecto que describe el hub.
 
 ### Juegos
+- [ ] **Buscaminas cooperativo** — mismo tablero, varias personas en tiempo real.
+      El motor (`shared/buscaminas.js`) ya corre igual en cliente y servidor, y
+      el spec ya define los eventos de socket. Falta `backend/buscaminasRooms.js`.
+- [ ] **Buscaminas versus** — mismo tablero, gana quien despeja primero
+- [ ] **Buscaminas sin adivinanza** — solver que garantice tableros deducibles
 - [ ] **Sudoku cooperativo** — mismo tablero, varias personas en tiempo real
 - [ ] **Sudoku versus** — mismo tablero, gana quien completa primero
 - [ ] **Ajedrez** — hoy figura como `proximamente` en el catálogo
