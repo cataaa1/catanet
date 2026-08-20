@@ -39,8 +39,8 @@ const elementos = {
   textoVelo: document.getElementById('texto-velo'),
   numpad: document.getElementById('numpad'),
   botonBorrar: document.getElementById('boton-borrar'),
-  botonBorrador: document.getElementById('boton-borrador'),
-  estadoBorrador: document.getElementById('estado-borrador'),
+  botonLapiz: document.getElementById('boton-lapiz'),
+  estadoLapiz: document.getElementById('estado-lapiz'),
   resultadoTitulo: document.getElementById('resultado-titulo'),
   resultadoTexto: document.getElementById('resultado-texto'),
   toast: document.getElementById('toast')
@@ -55,7 +55,7 @@ const estado = {
   tableroActual: crearTableroVacio(),
   celdaSeleccionada: null,
   notas: crearNotasVacias(),
-  modoBorrador: false,
+  modoLapiz: false,
   conflictos: new Set(),
   festejado: false,
   toastTimeout: null
@@ -128,7 +128,7 @@ function enlazarEventos() {
     }
   });
   elementos.botonBorrar.addEventListener('click', () => jugar(''));
-  elementos.botonBorrador.addEventListener('click', alternarBorrador);
+  elementos.botonLapiz.addEventListener('click', alternarLapiz);
 
   document.addEventListener('keydown', (evento) => {
     if (/^[1-9]$/.test(evento.key)) {
@@ -145,7 +145,7 @@ function enlazarEventos() {
 
     if (evento.key.toLowerCase() === 'n') {
       evento.preventDefault();
-      alternarBorrador();
+      alternarLapiz();
       return;
     }
 
@@ -256,13 +256,13 @@ function aplicarEstado(nuevo) {
 }
 
 
-// El borrador no es una ayuda: no te dice nada que no supieras, solo te deja
+// El lapiz no es una ayuda: no te dice nada que no supieras, solo te deja
 // anotar tu propio razonamiento en vez de sostenerlo de memoria.
-function alternarBorrador() {
-  estado.modoBorrador = !estado.modoBorrador;
-  elementos.botonBorrador.classList.toggle('is-activa', estado.modoBorrador);
-  elementos.botonBorrador.setAttribute('aria-pressed', estado.modoBorrador ? 'true' : 'false');
-  elementos.estadoBorrador.textContent = estado.modoBorrador ? 'ON' : 'OFF';
+function alternarLapiz() {
+  estado.modoLapiz = !estado.modoLapiz;
+  elementos.botonLapiz.classList.toggle('is-activa', estado.modoLapiz);
+  elementos.botonLapiz.setAttribute('aria-pressed', estado.modoLapiz ? 'true' : 'false');
+  elementos.estadoLapiz.textContent = estado.modoLapiz ? 'ON' : 'OFF';
 }
 
 function anotar(fila, columna, valor) {
@@ -339,7 +339,7 @@ function jugar(valor) {
   }
 
   // Las anotaciones son cosa de cada quien: no viajan al servidor
-  if (estado.modoBorrador && valor) {
+  if (estado.modoLapiz && valor) {
     anotar(fila, columna, valor);
     renderizarTablero();
     return;

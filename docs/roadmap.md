@@ -53,8 +53,8 @@ El menú de Sudoku ya promete estos modos en su texto de presentación, así que
 mientras no existan, la página está prometiendo de más.
 
 ### Calidad
-- [ ] **Persistencia de la partida en curso.** Ningún archivo usa `localStorage`:
-      si recargás, perdés el tablero del Sudoku o el Wordle individual.
+- [ ] **Persistencia de la partida en curso.** El Sudoku diario ya se guarda en
+      `localStorage`; el resto de los modos todavía pierden el tablero al recargar.
 - [ ] **Tests.** No hay ninguno. Los candidatos naturales son la lógica pura:
       colores del Wordle con letras repetidas, detección de conflictos del Sudoku,
       transiciones de turno de las salas.

@@ -1,11 +1,11 @@
 // Sudoku diario: el mismo tablero para todo el mundo, generado en el servidor.
 //
 // A proposito no tiene pistas ni deshacer: si la idea es comparar tiempos sobre
-// el mismo tablero, esas ayudas arruinan la comparacion. El borrador si esta,
+// el mismo tablero, esas ayudas arruinan la comparacion. El lapiz si esta,
 // porque no te dice nada que no supieras: solo te evita sostenerlo de memoria.
+// Hay tres errores permitidos, y el progreso se guarda en el navegador.
 import {
   actualizarCelda,
-  contarCeldasLlenas,
   crearIdCelda,
   esCeldaEditable,
   estaSudokuResuelto,
@@ -18,6 +18,8 @@ import { habilitarCierreResultado } from '/shared/resultado.js';
 
 const MS_ENTRE_INTENTOS = 1500;
 const MAXIMO_INTENTOS = 60;
+const MAXIMO_ERRORES = 3;
+const CLAVE_GUARDADO = 'catanet:sudoku-diario';
 
 const elementos = {
   tablero: document.getElementById('tablero'),
@@ -25,16 +27,17 @@ const elementos = {
   textoVelo: document.getElementById('texto-velo'),
   textoFecha: document.getElementById('texto-fecha'),
   textoReloj: document.getElementById('texto-reloj'),
-  textoProgreso: document.getElementById('texto-progreso'),
   textoEstado: document.getElementById('texto-estado'),
   numpad: document.getElementById('numpad'),
   botonBorrar: document.getElementById('boton-borrar'),
-  botonBorrador: document.getElementById('boton-borrador'),
-  estadoBorrador: document.getElementById('estado-borrador'),
+  botonLapiz: document.getElementById('boton-lapiz'),
+  estadoLapiz: document.getElementById('estado-lapiz'),
+  textoErrores: document.getElementById('texto-errores'),
   botonAyuda: document.getElementById('boton-ayuda'),
   botonCerrarAyuda: document.getElementById('boton-cerrar-ayuda'),
   panelAyuda: document.getElementById('panel-ayuda'),
   panelResultado: document.getElementById('panel-resultado'),
+  resultadoTitulo: document.getElementById('resultado-titulo'),
   resultadoTexto: document.getElementById('resultado-texto'),
   toast: document.getElementById('toast')
 };
@@ -46,10 +49,13 @@ const estado = {
   tableroResuelto: crearTableroVacio(),
   celdaSeleccionada: null,
   notas: crearNotasVacias(),
-  modoBorrador: false,
+  modoLapiz: false,
+  errores: 0,
+  celdasErradas: new Set(),
   conflictos: new Set(),
   listo: false,
   resuelto: false,
+  perdido: false,
   festejado: false,
   segundos: 0,
   intervalo: null,
@@ -75,7 +81,7 @@ function enlazarEventos() {
     }
   });
   elementos.botonBorrar.addEventListener('click', () => escribir(''));
-  elementos.botonBorrador.addEventListener('click', alternarBorrador);
+  elementos.botonLapiz.addEventListener('click', alternarLapiz);
 
   elementos.botonAyuda.addEventListener('click', () => {
     elementos.panelAyuda.hidden = false;
@@ -125,9 +131,15 @@ function empezarDesafio(datos) {
   estado.celdaSeleccionada = buscarPrimeraEditable();
   estado.listo = true;
 
+  retomarGuardado();
+
   elementos.textoFecha.textContent = formatearFecha(datos.fecha);
   elementos.velo.hidden = true;
-  arrancarReloj();
+
+  if (!estado.resuelto && !estado.perdido) {
+    arrancarReloj();
+  }
+
   renderizarTodo();
 }
 
@@ -152,7 +164,7 @@ function manejarTeclado(evento) {
     return;
   }
 
-  if (!estado.listo || estado.resuelto || !elementos.panelAyuda.hidden) {
+  if (!estado.listo || estado.resuelto || estado.perdido || !elementos.panelAyuda.hidden) {
     return;
   }
 
@@ -170,7 +182,7 @@ function manejarTeclado(evento) {
 
   if (evento.key.toLowerCase() === 'n') {
     evento.preventDefault();
-    alternarBorrador();
+    alternarLapiz();
     return;
   }
 
@@ -181,7 +193,7 @@ function manejarTeclado(evento) {
 }
 
 function escribir(valor) {
-  if (!estado.listo || estado.resuelto || !estado.celdaSeleccionada) {
+  if (!estado.listo || estado.resuelto || estado.perdido || !estado.celdaSeleccionada) {
     return;
   }
 
@@ -192,24 +204,40 @@ function escribir(valor) {
     return;
   }
 
-  // En modo borrador el digito va a las anotaciones y la celda queda vacia
-  if (estado.modoBorrador && valor) {
+  // Con el lapiz el digito va a las anotaciones y la celda queda vacia
+  if (estado.modoLapiz && valor) {
     anotar(fila, columna, valor);
     estado.tableroActual = actualizarCelda(estado.tableroActual, fila, columna, '');
     estado.conflictos = obtenerConflictos(estado.tableroActual);
     renderizarTodo();
+    guardar();
     return;
   }
+
+  const idCelda = crearIdCelda(fila, columna);
 
   estado.tableroActual = actualizarCelda(estado.tableroActual, fila, columna, valor);
   estado.notas[fila][columna] = [];
   estado.conflictos = obtenerConflictos(estado.tableroActual);
+  estado.celdasErradas.delete(idCelda);
 
-  if (!estado.conflictos.size && estaSudokuResuelto(estado.tableroActual, estado.tableroResuelto)) {
+  // Como el servidor manda la solucion, sabemos al toque si el numero va o no
+  const seEquivoco = Boolean(valor) && valor !== estado.tableroResuelto[fila][columna];
+
+  if (seEquivoco) {
+    estado.errores += 1;
+    estado.celdasErradas.add(idCelda);
+  }
+
+  if (!seEquivoco && !estado.conflictos.size
+    && estaSudokuResuelto(estado.tableroActual, estado.tableroResuelto)) {
     terminar();
+  } else if (estado.errores >= MAXIMO_ERRORES) {
+    perder();
   }
 
   renderizarTodo();
+  guardar();
 }
 
 function moverSeleccion(tecla) {
@@ -233,11 +261,22 @@ function moverSeleccion(tecla) {
   renderizarTablero();
 }
 
+function perder() {
+  estado.perdido = true;
+  detenerReloj();
+
+  elementos.resultadoTitulo.textContent = 'Te quedaste sin vidas';
+  elementos.resultadoTexto.textContent = `Se acabaron los ${MAXIMO_ERRORES} errores. Manana hay un tablero nuevo.`;
+  elementos.panelResultado.hidden = false;
+  elementos.textoEstado.textContent = 'Perdiste el desafio de hoy.';
+}
+
 function terminar() {
   estado.resuelto = true;
   detenerReloj();
 
-  elementos.resultadoTexto.textContent = `Resolviste el tablero de hoy en ${formatearReloj(estado.segundos)}. Manana hay uno nuevo.`;
+  elementos.resultadoTitulo.textContent = 'Lo resolviste';
+  elementos.resultadoTexto.textContent = `Resolviste el tablero de hoy en ${formatearReloj(estado.segundos)} con ${estado.errores} error${estado.errores === 1 ? '' : 'es'}. Manana hay uno nuevo.`;
   elementos.panelResultado.hidden = false;
   elementos.textoEstado.textContent = 'Tablero resuelto.';
 
@@ -248,13 +287,13 @@ function terminar() {
 }
 
 
-// El borrador no es una ayuda: no te dice nada que no supieras, solo te deja
+// El lapiz no es una ayuda: no te dice nada que no supieras, solo te deja
 // anotar tu propio razonamiento en vez de sostenerlo de memoria.
-function alternarBorrador() {
-  estado.modoBorrador = !estado.modoBorrador;
-  elementos.botonBorrador.classList.toggle('is-activa', estado.modoBorrador);
-  elementos.botonBorrador.setAttribute('aria-pressed', estado.modoBorrador ? 'true' : 'false');
-  elementos.estadoBorrador.textContent = estado.modoBorrador ? 'ON' : 'OFF';
+function alternarLapiz() {
+  estado.modoLapiz = !estado.modoLapiz;
+  elementos.botonLapiz.classList.toggle('is-activa', estado.modoLapiz);
+  elementos.botonLapiz.setAttribute('aria-pressed', estado.modoLapiz ? 'true' : 'false');
+  elementos.estadoLapiz.textContent = estado.modoLapiz ? 'ON' : 'OFF';
 }
 
 function anotar(fila, columna, valor) {
@@ -285,7 +324,7 @@ function dibujarNotas(notas) {
 
 function renderizarTodo() {
   renderizarTablero();
-  renderizarProgreso();
+  elementos.textoErrores.textContent = `${estado.errores} / ${MAXIMO_ERRORES}`;
 }
 
 function renderizarTablero() {
@@ -316,7 +355,9 @@ function renderizarTablero() {
         clases.push('celda--seleccionada');
       }
 
-      if (estado.conflictos.has(crearIdCelda(fila, columna))) {
+      if (estado.celdasErradas.has(crearIdCelda(fila, columna))) {
+        clases.push('celda--error');
+      } else if (estado.conflictos.has(crearIdCelda(fila, columna))) {
         clases.push('celda--conflicto');
       }
 
@@ -332,10 +373,6 @@ function renderizarTablero() {
         aria-label="Fila ${fila + 1}, columna ${columna + 1}, ${valor || 'vacia'}">${valor || dibujarNotas(estado.notas[fila][columna])}</button>`;
     }).join('')
   )).join('');
-}
-
-function renderizarProgreso() {
-  elementos.textoProgreso.textContent = `${contarCeldasLlenas(estado.tableroActual)} / 81`;
 }
 
 function arrancarReloj() {
@@ -388,6 +425,71 @@ function buscarPrimeraEditable() {
   }
 
   return null;
+}
+
+/**
+ * Guarda la partida del dia en el navegador. Un tablero experto lleva su rato y
+ * nadie lo resuelve de una sentada: si se pierde al cerrar la pestana, no sirve.
+ */
+function guardar() {
+  try {
+    localStorage.setItem(`${CLAVE_GUARDADO}:${estado.fecha}`, JSON.stringify({
+      tablero: estado.tableroActual,
+      notas: estado.notas,
+      errores: estado.errores,
+      erradas: [...estado.celdasErradas],
+      segundos: estado.segundos,
+      resuelto: estado.resuelto,
+      perdido: estado.perdido
+    }));
+  } catch (error) {
+    // Sin localStorage (modo privado, por ejemplo) se juega igual, sin guardar
+    console.warn('No pude guardar el progreso:', error.message);
+  }
+}
+
+function retomarGuardado() {
+  limpiarGuardadosViejos();
+
+  let guardado = null;
+
+  try {
+    guardado = JSON.parse(localStorage.getItem(`${CLAVE_GUARDADO}:${estado.fecha}`));
+  } catch (error) {
+    return;
+  }
+
+  if (!guardado || !Array.isArray(guardado.tablero)) {
+    return;
+  }
+
+  estado.tableroActual = guardado.tablero.map((fila) => fila.slice());
+  estado.notas = Array.isArray(guardado.notas) ? guardado.notas : crearNotasVacias();
+  estado.errores = guardado.errores || 0;
+  estado.celdasErradas = new Set(guardado.erradas || []);
+  estado.segundos = guardado.segundos || 0;
+  estado.resuelto = Boolean(guardado.resuelto);
+  estado.perdido = Boolean(guardado.perdido);
+  estado.conflictos = obtenerConflictos(estado.tableroActual);
+
+  elementos.textoReloj.textContent = formatearReloj(estado.segundos);
+
+  if (estado.resuelto) {
+    terminar();
+  } else if (estado.perdido) {
+    perder();
+  }
+}
+
+// El tablero de ayer ya no le sirve a nadie
+function limpiarGuardadosViejos() {
+  try {
+    Object.keys(localStorage)
+      .filter((clave) => clave.startsWith(CLAVE_GUARDADO) && !clave.endsWith(estado.fecha))
+      .forEach((clave) => localStorage.removeItem(clave));
+  } catch (error) {
+    console.warn('No pude limpiar los tableros viejos:', error.message);
+  }
 }
 
 function crearTableroVacio() {

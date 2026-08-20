@@ -101,9 +101,9 @@
   font-size: 18px;
 }
 
-/* --- Modo borrador --- */
+/* --- Modo lapiz --- */
 
-.modo-borrador {
+.modo-lapiz {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -118,7 +118,7 @@
   transition: background 0.18s ease, border-color 0.18s ease;
 }
 
-.modo-borrador svg {
+.modo-lapiz svg {
   width: 19px;
   height: 19px;
   fill: none;
@@ -128,12 +128,12 @@
   stroke-linejoin: round;
 }
 
-.modo-borrador__texto {
+.modo-lapiz__texto {
   flex: 1;
   text-align: left;
 }
 
-.modo-borrador__estado {
+.modo-lapiz__estado {
   padding: 3px 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.16);
@@ -141,12 +141,38 @@
   font-weight: 600;
 }
 
-.modo-borrador.is-activa {
+.modo-lapiz.is-activa {
   background: rgba(123, 208, 255, 0.28);
   border-color: var(--acento-borde);
 }
 
-.modo-borrador.is-activa .modo-borrador__estado {
+.modo-lapiz.is-activa .modo-lapiz__estado {
   background: var(--acento);
   color: #0b1724;
+}
+
+/* --- Celda equivocada --- */
+
+.celda--error,
+.celda--error.celda--seleccionada {
+  background: rgba(255, 90, 90, 0.34);
+  border-color: rgba(255, 120, 120, 0.95);
+  color: #fff0f0;
+  animation: celda-mal 0.42s ease;
+}
+
+/* Un temblor corto: alcanza para que el ojo lo registre sin molestar */
+@keyframes celda-mal {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celda--error {
+    animation: none;
+  }
 }

@@ -147,13 +147,27 @@ navegador, así que lo genera el servidor **una vez por día** y lo cachea:
 Usa la dificultad `experto`: 28 pistas, sin ninguna jugada obvia de entrada
 (`maxSingles: 0`) y con un promedio alto de candidatos por celda.
 
+### Tres errores permitidos
+Como el servidor manda la solución junto con el tablero, el cliente sabe al
+instante si un número va o no. Cada número equivocado se marca en rojo con un
+temblor corto y gasta uno de los tres errores; al tercero se pierde el desafío
+del día. Corregir la celda saca la marca pero **no** devuelve el error gastado.
+
+### El progreso se guarda
+Un tablero experto lleva su rato y nadie lo resuelve de una sentada, así que la
+partida se guarda en `localStorage` con la fecha como clave: tablero,
+anotaciones, errores y cronómetro. Al volver, se retoma donde quedó. Los
+tableros de días anteriores se borran solos.
+
+Es el primer modo de CataNet que guarda la partida en curso.
+
 ### Qué ayudas tiene y cuáles no
-Tiene **borrador**, para anotar los candidatos de una celda sin escribirlos en
+Tiene **lápiz**, para anotar los candidatos de una celda sin escribirlos en
 firme. No tiene pistas ni deshacer.
 
 La diferencia no es caprichosa: una pista te da información que no tenías y el
 deshacer te saca el riesgo de equivocarte, así que las dos rompen la comparación
-de tiempos. El borrador no te dice nada nuevo — sólo te deja anotar tu propio
+de tiempos. El lápiz no te dice nada nuevo — sólo te deja anotar tu propio
 razonamiento en vez de sostenerlo de memoria, que es lo que hace cualquiera con
 un sudoku de papel y un lápiz.
 
