@@ -75,6 +75,8 @@ CataNet/
 │   ├── versusRooms.js     ← salas del Versus por tiempo
 │   └── words.js           ← palabras del juego
 └── frontend/
+    ├── manifest.webmanifest ← datos de la PWA
+    ├── icons/             ← favicon e iconos de la app
     ├── hub/               ← menú principal
     ├── shared/            ← catálogo de juegos y lógica compartida
     ├── co-wordle/

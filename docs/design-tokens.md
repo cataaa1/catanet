@@ -132,3 +132,33 @@ hacia los bordes. Ver implementación en `frontend/hub/index.html`.
   gap: 24px;
 }
 ```
+
+## Iconos del sitio
+
+Viven en `/frontend/icons/` y se generaron a partir de dos ilustraciones en pixel
+art: una para el favicon, más simple, y otra con más detalle para el icono de la
+app.
+
+| Archivo | Uso |
+|---|---|
+| `favicon-16/32/48.png` | La pestaña del navegador |
+| `apple-touch-icon.png` | "Agregar a inicio" en iOS, 180x180 |
+| `icono-192.png`, `icono-512.png` | La PWA |
+| `icono-maskable-192/512.png` | Android, que recorta el icono a la forma del sistema |
+
+### Cómo se prepararon
+Las dos venían con fondo blanco y sin transparencia, de 1254x1254 y pesando 2,4 MB
+entre las dos. El fondo se sacó con un relleno desde los bordes, no con un umbral:
+**el cuerpo de la figura es casi blanco** (254,241,236) y un umbral simple se lo
+comía. Lo que separa limpio es la saturación — el fondo y su sombra están en 0-2,
+y lo más apagado del dibujo, en 17.
+
+Después se recortaron a lo que no es transparente y se pasaron a paleta. Los ocho
+archivos juntos pesan 170 KB.
+
+Las versiones *maskable* llevan el dibujo al 78% y rellenan el margen con el verde
+del propio cielo, para que Android pueda recortar sin comerse nada.
+
+### Colores de la PWA
+- `theme_color`: `#54414e` (la ciruela de la paleta)
+- `background_color`: `#f4edf0` (el fondo del hub)

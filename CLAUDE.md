@@ -60,6 +60,8 @@ CataNet/
 │   └── workers/                ← generación pesada fuera del hilo principal
 │   └── words.js                 ← lista de palabras
 └── frontend/
+    ├── manifest.webmanifest     ← datos de la PWA (nombre, colores, iconos)
+    ├── icons/                   ← favicon e iconos de la app
     ├── hub/
     │   ├── index.html           ← menú principal de CataNet
     │   └── assets/              ← logos y fondos de los menús
