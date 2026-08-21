@@ -162,3 +162,48 @@ del propio cielo, para que Android pueda recortar sin comerse nada.
 ### Colores de la PWA
 - `theme_color`: `#54414e` (la ciruela de la paleta)
 - `background_color`: `#f4edf0` (el fondo del hub)
+
+## Fondos de los menús
+
+Cada menú tiene su ilustración en `/frontend/hub/assets/menus/`, aplicada sobre
+`.bg-scene` con `cover` y un degradado encima que la apaga un poco para que el
+texto se lea.
+
+| Archivo | Menú |
+|---|---|
+| `background-1.png` | Wordle |
+| `background-2.png` | Sudoku |
+| `background-3.png` | Buscaminas |
+| `background-4.png` | Hub |
+
+### La versión vertical
+Los originales son apaisados (1672x941). En un teléfono, `cover` recorta tanto
+que del paisaje entran unos 370 de los 1672 píxeles de ancho: se ve un pedazo de
+cielo y nada más. Por eso cada fondo tiene un `-vertical.png` de 900x1600 que
+entra por media query:
+
+```css
+@media (orientation: portrait) and (max-width: 900px) {
+  .bg-scene { background-image: /* degradados */, url(".../background-N-vertical.png"); }
+}
+```
+
+No son dibujos nuevos: son la misma ilustración estirada **solo donde no hay
+detalle**. Se calcula la energía de cada fila (cuánto cambia respecto de la de
+abajo, más cuánto cambia a lo ancho) y se duplican las filas más planas —cielo
+liso, pasto, agua—, promediándolas con la siguiente para que no se vea el corte.
+Así el horizonte, las montañas y los árboles conservan su proporción.
+
+Dos detalles que costaron encontrar, los dos por el mismo motivo —una fila puede
+parecer plana mirando solo hacia abajo:
+
+- **las estrellas** salían como rayas verticales, porque una fila con una
+  estrella promedia casi igual que una de cielo liso. Se arregló sumando a la
+  energía el salto vertical más grande de la fila, no solo el promedio.
+- **el sol** salía ovalado: adentro del sol dos filas seguidas son idénticas.
+  Ahí hace falta mirar a lo ancho, y el promedio tampoco alcanza, porque el sol
+  ocupa 90 de los 1672 píxeles y se diluye. Lo que lo cuida es el salto
+  horizontal más grande, que en esa fila es el borde del propio sol.
+
+El estiramiento es de 1,6x. Con 1,9x el recorte queda más ancho, pero las nubes
+empiezan a verse deformadas. Los cuatro verticales juntos pesan 911 KB.
