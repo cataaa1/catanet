@@ -7,7 +7,7 @@ import {
   revelarCelda,
   revelarVecinos
 } from '/shared/buscaminas.js';
-import { festejar } from '/shared/celebracion.js';
+import { cortarFestejo, festejar } from '/shared/celebracion.js';
 import { habilitarCierreResultado } from '/shared/resultado.js';
 
 const RUTA_MINA = '/buscaminas/assets/mina.png';
@@ -108,6 +108,9 @@ function enlazarEventos() {
 }
 
 function iniciarNuevaPartida(dificultadId) {
+  // Si todavia esta cayendo el papel picado de la anterior, se corta
+  cortarFestejo();
+
   estado.dificultad = dificultadId;
   estado.partida = crearPartidaBuscaminas(dificultadId);
   estado.modoBandera = false;

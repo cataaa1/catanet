@@ -39,8 +39,8 @@ export function festejar(opciones = {}) {
   arrancarAnimacion();
 }
 
-/** Corta el festejo y limpia todo. La usa el propio bucle al terminar. */
-function cortarFestejo() {
+/** Corta el festejo y limpia todo. Util al empezar una partida nueva. */
+export function cortarFestejo() {
   removeEventListener('resize', ajustarTamanio);
 
   if (animacion !== null) {

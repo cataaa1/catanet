@@ -9,7 +9,7 @@ import {
   obtenerRelacionCelda,
   MAXIMO_ERRORES_SUDOKU
 } from '/shared/sudoku.js';
-import { festejar } from '/shared/celebracion.js';
+import { cortarFestejo, festejar } from '/shared/celebracion.js';
 import { habilitarCierreResultado } from '/shared/resultado.js';
 
 const TOTAL_PISTAS = 3;
@@ -84,6 +84,9 @@ async function iniciarNuevaPartida(dificultadId) {
   if (estado.generando) {
     return;
   }
+
+  // Si todavia esta cayendo el papel picado de la anterior, se corta
+  cortarFestejo();
 
   estado.dificultad = dificultadId;
   estado.generando = true;

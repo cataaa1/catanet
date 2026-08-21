@@ -38,6 +38,13 @@ npm run dev   # con auto-reload (desarrollo)
 npm start     # sin auto-reload (producción)
 ```
 
+### Correr las pruebas
+
+```bash
+cd backend
+npm test
+```
+
 ### Abrir el frontend
 
 Entrá a **http://localhost:3000** — Express sirve el hub y todos los juegos.
@@ -60,6 +67,7 @@ CataNet/
 │   ├── architecture.md    ← cómo funciona el backend
 │   ├── roadmap.md         ← qué falta para darlo por completo
 │   └── game-specs/        ← reglas de cada juego
+├── tests/                 ← pruebas, `npm test`
 ├── backend/
 │   ├── package.json
 │   ├── server.js          ← Express + Socket.io + archivos estáticos

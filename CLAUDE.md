@@ -41,6 +41,7 @@ CataNet/
 ├── CLAUDE.md                    ← este archivo
 ├── README.md
 ├── .gitignore
+├── tests/                       ← pruebas, se corren con `npm test`
 ├── docs/
 │   ├── design-tokens.md         ← colores, tipografía, componentes
 │   ├── architecture.md          ← cómo funciona el backend
@@ -117,6 +118,16 @@ npm run dev        # con auto-reload (nodemon)
 
 Después abrir **http://localhost:3000** en el navegador.
 
+## Cómo correr las pruebas
+
+```bash
+cd backend
+npm test                 # todas
+npm test -- sudoku       # solo las que digan "sudoku"
+```
+
+Son scripts de Node, sin framework. Ver `/tests/README.md`.
+
 > IMPORTANTE: no abrir los `index.html` con doble click (`file://`). El frontend
 > usa módulos ES con rutas absolutas tipo `/shared/catalog.js`, que sólo resuelven
 > si la página se sirve desde el servidor.
@@ -127,6 +138,7 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 ## Estado actual del proyecto
 
 ### Listo
+- [x] Pruebas: 251 chequeos sobre motores, salas, juegos y servidor real
 - [x] Deploy en Render, con auto-deploy en cada push a `main`
 - [x] Estructura de carpetas y documentación
 - [x] Backend: `server.js` con Express + Socket.io + estáticos
@@ -141,6 +153,5 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 - [ ] Probar de punta a punta los modos online con dos clientes reales
 - [ ] Sudoku: modo cooperativo
 - [ ] Persistencia de la partida en curso (hoy no se usa `localStorage`)
-- [ ] Tests
 
 Ver `/docs/roadmap.md` para el detalle de qué falta para considerarlo completo.
