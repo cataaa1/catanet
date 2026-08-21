@@ -10,6 +10,11 @@ const MAXIMO_ERRORES = 3;
 
 const COLORES = ['#7bd0ff', '#f0a6c0', '#8ff0c0', '#ffd76b', '#c9a7ff', '#ff8fb1'];
 
+// Cuantas salas puede tener abiertas un mismo socket. Sin esto, un cliente que
+// crea salas en bucle las acumula en memoria: la limpieza periodica solo borra
+// las que quedaron sin nadie conectado, y quien las creo figura conectado.
+const MAXIMO_SALAS_POR_SOCKET = 5;
+
 const salas = new Map();
 const indiceSalaPorSocket = new Map();
 
@@ -30,6 +35,8 @@ function exigirMotor() {
 }
 
 function crearSalaSudoku(socketId, opciones = {}) {
+  exigirCupoDeSalas(socketId);
+
   const dificultad = exigirMotor().obtenerDificultadSudoku(opciones.dificultad).id;
   const salaId = crearIdSala();
 
@@ -248,6 +255,19 @@ function reiniciarSalaSudoku(salaId, socketId) {
     throw new Error('Falta gente para correr otra.');
   }
 
+  // Generar un tablero cuesta un worker y varios segundos de CPU. Sin esta
+  // guarda, un cliente que repite el pedido lanza un worker por cada uno y
+  // deja al servidor sin capacidad para el resto de las partidas.
+  if (sala.fase === 'generando') {
+    throw new Error('Ya se esta armando un tablero nuevo.');
+  }
+
+  // Solo se reinicia una carrera terminada: si no, cualquiera puede cambiarle
+  // el tablero al resto en el medio.
+  if (sala.fase !== 'terminada') {
+    throw new Error('La carrera sigue en curso.');
+  }
+
   sala.fase = 'generando';
 
   return sala;
@@ -397,6 +417,21 @@ function crearIdSala() {
   } while (salas.has(salaId));
 
   return salaId;
+}
+
+// Cuenta las salas que este socket dejo abiertas y frena si se pasa del cupo
+function exigirCupoDeSalas(socketId) {
+  let abiertas = 0;
+
+  salas.forEach((sala) => {
+    if (sala.jugadores[socketId]) {
+      abiertas += 1;
+    }
+  });
+
+  if (abiertas >= MAXIMO_SALAS_POR_SOCKET) {
+    throw new Error('Tenes demasiadas salas abiertas. Cerra alguna antes de crear otra.');
+  }
 }
 
 function normalizarSalaId(salaId) {

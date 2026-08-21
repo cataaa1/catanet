@@ -12,6 +12,11 @@ const MAXIMO_JUGADORES = { coop: 6, versus: 2 };
 // Un color por jugador, para ver quien destapo cada celda en el cooperativo
 const COLORES = ['#7bd0ff', '#f0a6c0', '#8ff0c0', '#ffd76b', '#c9a7ff', '#ff8fb1'];
 
+// Cuantas salas puede tener abiertas un mismo socket. Sin esto, un cliente que
+// crea salas en bucle las acumula en memoria: la limpieza periodica solo borra
+// las que quedaron sin nadie conectado, y quien las creo figura conectado.
+const MAXIMO_SALAS_POR_SOCKET = 5;
+
 const salas = new Map();
 const indiceSalaPorSocket = new Map();
 
@@ -36,6 +41,8 @@ function exigirMotor() {
 }
 
 function crearSalaBuscaminas(socketId, opciones = {}) {
+  exigirCupoDeSalas(socketId);
+
   const modo = opciones.modo === 'versus' ? 'versus' : 'coop';
   const dificultad = exigirMotor().obtenerDificultadBuscaminas(opciones.dificultad).id;
   const salaId = crearIdSala();
@@ -314,6 +321,13 @@ function reiniciarSalaBuscaminas(salaId, socketId) {
     throw new Error('Falta gente para empezar otra partida.');
   }
 
+  // Solo se reinicia una partida terminada: si no, cualquiera puede cambiarle
+  // el tablero al resto en el medio de la partida.
+  if (sala.fase !== 'terminada') {
+    throw new Error('La partida sigue en curso.');
+  }
+
+
   arrancarPartida(sala);
 
   return sala;
@@ -473,6 +487,21 @@ function crearIdSala() {
   } while (salas.has(salaId));
 
   return salaId;
+}
+
+// Cuenta las salas que este socket dejo abiertas y frena si se pasa del cupo
+function exigirCupoDeSalas(socketId) {
+  let abiertas = 0;
+
+  salas.forEach((sala) => {
+    if (sala.jugadores[socketId]) {
+      abiertas += 1;
+    }
+  });
+
+  if (abiertas >= MAXIMO_SALAS_POR_SOCKET) {
+    throw new Error('Tenes demasiadas salas abiertas. Cerra alguna antes de crear otra.');
+  }
 }
 
 function normalizarSalaId(salaId) {

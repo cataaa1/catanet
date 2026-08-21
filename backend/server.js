@@ -61,11 +61,19 @@ const {
 } = require('./sudokuDiario');
 
 const PUERTO = Number(process.env.PORT) || 3000;
+
+// El frontend lo sirve este mismo servidor, asi que por defecto solo se acepta
+// el propio origen. ORIGENES_PERMITIDOS existe por si alguna vez el frontend se
+// sirve aparte; con "*" se vuelve al comportamiento abierto de antes.
+const ORIGENES_PERMITIDOS = (process.env.ORIGENES_PERMITIDOS || '')
+  .split(',')
+  .map((origen) => origen.trim())
+  .filter(Boolean);
 const app = express();
 const servidorHttp = http.createServer(app);
 const io = new Server(servidorHttp, {
   cors: {
-    origin: true,
+    origin: revisarOrigen,
     methods: ['GET', 'POST']
   }
 });
@@ -73,11 +81,25 @@ const io = new Server(servidorHttp, {
 const rutaFrontend = path.resolve(__dirname, '../frontend');
 const rutaHub = path.join(rutaFrontend, 'hub', 'index.html');
 
-app.use(express.json());
+app.use(express.json({ limit: '32kb' }));
+
+app.use((solicitud, _respuesta, siguiente) => {
+  if (solicitud.headers.host) {
+    hostsConocidos.add(solicitud.headers.host);
+  }
+
+  siguiente();
+});
 app.use((solicitud, respuesta, siguiente) => {
-  respuesta.setHeader('Access-Control-Allow-Origin', '*');
-  respuesta.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  respuesta.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  const origen = solicitud.headers.origin;
+
+  // Sin cabecera Origin es una peticion del mismo sitio: no hace falta CORS
+  if (origen && estaPermitido(origen, solicitud.headers.host)) {
+    respuesta.setHeader('Access-Control-Allow-Origin', origen);
+    respuesta.setHeader('Vary', 'Origin');
+    respuesta.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    respuesta.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  }
 
   if (solicitud.method === 'OPTIONS') {
     respuesta.sendStatus(204);
@@ -86,6 +108,47 @@ app.use((solicitud, respuesta, siguiente) => {
 
   siguiente();
 });
+
+/**
+ * Acepta el origen si coincide con el host que sirvio la pagina, o si esta en
+ * la lista de ORIGENES_PERMITIDOS.
+ */
+function estaPermitido(origen, host) {
+  if (ORIGENES_PERMITIDOS.includes('*') || ORIGENES_PERMITIDOS.includes(origen)) {
+    return true;
+  }
+
+  try {
+    return new URL(origen).host === host;
+  } catch (error) {
+    return false;
+  }
+}
+
+// Socket.io pide el origen sin el host, asi que se resuelve con la lista
+function revisarOrigen(origen, aceptar) {
+  if (!origen || ORIGENES_PERMITIDOS.includes('*') || ORIGENES_PERMITIDOS.includes(origen)) {
+    aceptar(null, true);
+    return;
+  }
+
+  aceptar(null, esOrigenPropio(origen));
+}
+
+// Compara el origen contra los hosts por los que se accede a este servidor
+function esOrigenPropio(origen) {
+  try {
+    const host = new URL(origen).host;
+
+    return hostsConocidos.has(host);
+  } catch (error) {
+    return false;
+  }
+}
+
+// Los hosts se aprenden de las propias peticiones HTTP, que ya pasaron por el
+// mismo servidor: asi funciona igual en localhost, en Render o con dominio propio
+const hostsConocidos = new Set();
 
 // Servimos el frontend completo desde la raiz para que el hub y los juegos
 // queden disponibles con rutas simples como /hub/ o /co-wordle/.

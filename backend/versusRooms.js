@@ -217,6 +217,13 @@ function reiniciarSalaVersus(salaId, socketId, onFinalizar) {
     throw new Error('Todavia falta el segundo jugador.');
   }
 
+  // Solo se reinicia una partida terminada: si no, cualquiera puede cambiarle
+  // el tablero al resto en el medio de la partida.
+  if (sala.fase !== 'terminada') {
+    throw new Error('La partida sigue en curso.');
+  }
+
+
   limpiarTemporizadorFinal(sala);
   sala.fase = 'jugando';
   sala.iniciadaEn = Date.now();

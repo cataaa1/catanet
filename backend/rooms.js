@@ -257,6 +257,12 @@ function reiniciarSala(salaId, socketId) {
     throw new Error('No perteneces a esta sala.');
   }
 
+  // Solo se reinicia una partida terminada: si no, cualquiera puede cambiarle
+  // el tablero al resto en el medio de la partida.
+  if (sala.fase !== 'terminada') {
+    throw new Error('La partida sigue en curso.');
+  }
+
   sala.palabraSecreta = obtenerPalabraAleatoria();
   sala.historialIntentos = [];
   sala.fase = 'esperando';
