@@ -2,6 +2,8 @@
 
 Hub de juegos online para jugar con amigos vía link, sin registro.
 
+**En vivo: [catanet.onrender.com](https://catanet.onrender.com)**
+
 ## Juegos disponibles
 
 ### Wordle
@@ -75,4 +77,4 @@ CataNet/
 ## Stack
 - **Frontend**: HTML + CSS + JS vanilla, sin bundler
 - **Backend**: Node.js + Express + Socket.io
-- **Deploy**: pendiente — un solo servicio, con soporte WebSocket
+- **Deploy**: [catanet.onrender.com](https://catanet.onrender.com) — un solo servicio en Render

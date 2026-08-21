@@ -5,7 +5,7 @@ const DIGITOS_DISPONIBLES = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 /** Errores permitidos antes de perder, igual en todos los modos de Sudoku. */
 export const MAXIMO_ERRORES_SUDOKU = 3;
 
-export const DIFICULTADES_SUDOKU = [
+const DIFICULTADES_SUDOKU = [
   {
     id: 'facil',
     etiqueta: 'Facil',
@@ -103,14 +103,14 @@ export function stringATablero(boardString) {
   ));
 }
 
-export function tableroAString(tablero) {
+function tableroAString(tablero) {
   return tablero
     .flat()
     .map((valor) => (valor ? String(valor) : VACIO))
     .join('');
 }
 
-export function clonarTablero(tablero) {
+function clonarTablero(tablero) {
   return tablero.map((fila) => fila.slice());
 }
 
@@ -127,10 +127,6 @@ export function actualizarCelda(tablero, fila, columna, valor) {
   const siguiente = clonarTablero(tablero);
   siguiente[fila][columna] = normalizarEntradaSudoku(valor);
   return siguiente;
-}
-
-export function contarCeldasLlenas(tablero) {
-  return tablero.flat().filter(Boolean).length;
 }
 
 export function obtenerConflictos(tablero) {

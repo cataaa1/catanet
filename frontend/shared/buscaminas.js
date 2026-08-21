@@ -11,7 +11,7 @@ const VECINDARIO = [
   [1, -1], [1, 0], [1, 1]
 ];
 
-export const DIFICULTADES_BUSCAMINAS = [
+const DIFICULTADES_BUSCAMINAS = [
   {
     id: 'facil',
     etiqueta: 'Facil',
@@ -65,10 +65,6 @@ export function crearPartidaBuscaminas(dificultadId = 'facil') {
     banderas: 0,
     celdaExplotada: null
   };
-}
-
-export function crearTableroVacio(filas, columnas) {
-  return crearTablero(filas, columnas);
 }
 
 /**

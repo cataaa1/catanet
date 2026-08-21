@@ -11,10 +11,9 @@ El objetivo declarado del proyecto es *"jugar con amigos vía link compartido"*.
 Hoy eso **no se cumple**: todo funciona sólo en `localhost`. Estos son los puntos
 mínimos para que el proyecto haga lo que promete.
 
-- [ ] **Deploy en un host con WebSockets.**
-      No hay ninguna configuración de deploy en el repo. Como Express ya sirve el
-      frontend estático, alcanza con **un solo servicio** — no hace falta separar
-      frontend y backend.
+- [x] ~~Deploy en un host con WebSockets~~ — vivo en
+      [catanet.onrender.com](https://catanet.onrender.com), con auto-deploy en
+      cada push a `main`.
 - [ ] **Probar los modos online de punta a punta.**
       El Co-Wordle por turnos y el Versus por tiempo están escritos completos,
       pero nunca se jugó una partida real de dos clientes contra el servidor
@@ -24,10 +23,9 @@ mínimos para que el proyecto haga lo que promete.
       manda a un 404 sin avisar.
 - [x] Documentación del Sudoku (`docs/game-specs/sudoku.md`)
 - [x] Documentación del Buscaminas (`docs/game-specs/buscaminas.md`)
-- [ ] **Actualizar `docs/game-specs/co-wordle.md`.**
-      El spec describe un juego simultáneo y competitivo, con un tablero por
-      jugador. Lo implementado en `backend/rooms.js` es **cooperativo por turnos**,
-      con seis intentos compartidos. El documento quedó desactualizado.
+- [x] ~~Actualizar `docs/game-specs/co-wordle.md`~~ — reescrito según lo que
+      hace `backend/rooms.js`: cooperativo por turnos, con seis intentos
+      compartidos y un solo tablero.
 
 Cuando estos puntos estén, CataNet es un producto real: un link que le pasás a
 alguien y juegan.

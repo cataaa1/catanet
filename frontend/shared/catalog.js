@@ -161,10 +161,6 @@ export const modos = [
   },
 ];
 
-export function obtenerFamilia(familiaId) {
-  return familias.find((familia) => familia.id === familiaId) || null;
-}
-
 export function obtenerModosPorFamilia(familiaId) {
   return modos.filter((modo) => modo.familiaId === familiaId);
 }

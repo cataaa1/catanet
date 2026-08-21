@@ -24,9 +24,15 @@ Si agregás un juego o un modo, se declara ahí y los menús se arman solos.
 - **Base de datos**: Ninguna — el estado de las partidas vive en memoria (Map)
 - **Package manager**: npm
 
-### Deploy (pendiente)
-- Un solo servicio: Express ya sirve el frontend, así que no hace falta
-  separar frontend y backend. Necesita un host con soporte WebSocket.
+### Deploy
+- **En vivo en https://catanet.onrender.com** (Render, plan gratuito).
+- Un solo servicio: Express sirve el frontend, así que no hay que separar
+  frontend y backend.
+- En Render, el **Root Directory tiene que estar vacío**. Si apunta a
+  `backend/`, los cambios del frontend no disparan el auto-deploy.
+- El plan gratuito duerme el servicio tras ~15 minutos sin tráfico, y al
+  despertar tarda cerca de un minuto. Como las salas viven en memoria, al
+  dormirse se pierden las partidas en curso.
 
 ## Estructura de carpetas
 
@@ -121,6 +127,7 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 ## Estado actual del proyecto
 
 ### Listo
+- [x] Deploy en Render, con auto-deploy en cada push a `main`
 - [x] Estructura de carpetas y documentación
 - [x] Backend: `server.js` con Express + Socket.io + estáticos
 - [x] Backend: salas del Co-Wordle (`rooms.js`) y del Versus (`versusRooms.js`)
@@ -131,7 +138,6 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 - [x] Buscaminas: motor compartido, menú de familia y los tres modos
 
 ### Pendiente
-- [ ] Deploy en un host con WebSockets (hoy sólo corre en localhost)
 - [ ] Probar de punta a punta los modos online con dos clientes reales
 - [ ] Sudoku: modo cooperativo
 - [ ] Persistencia de la partida en curso (hoy no se usa `localStorage`)
