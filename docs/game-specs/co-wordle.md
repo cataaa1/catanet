@@ -47,11 +47,19 @@ No hace falta registro: una persona crea la sala, comparte el link y listo.
 - **Gris**: la letra no aparece en la palabra
 
 ### Manejo de letras repetidas
-Es el caso difícil. Ejemplo: palabra = "PERRO", intento = "RADAR"
+Es el caso difícil. Ejemplo: palabra = **PERRO** (P-E-R-R-O), intento = **RADAR**
 
-- R en posición 0: está en "PERRO" → amarillo
-- A, D, A: no están → gris
-- R en posición 4: coincide con la R de "PERRO" → verde
+- R en posición 0: no coincide con la P, pero "PERRO" tiene R libres → **amarillo**
+- A, D, A: no están en la palabra → **gris**
+- R en posición 4: la posición 4 de "PERRO" es una **O**, así que no es verde;
+  como todavía queda una R sin reclamar, va **amarillo**
+
+Las dos R salen amarillas porque "PERRO" tiene exactamente dos, y ninguna cae en
+su lugar.
+
+> Este ejemplo estuvo mal documentado un tiempo: decía que la R final era verde.
+> Lo cubre `tests/motor-wordle.prueba.mjs`, así que si alguien vuelve a cambiar
+> el algoritmo, la prueba avisa.
 
 El algoritmo es de dos pasadas:
 

@@ -25,6 +25,7 @@ export async function cargarJuego(rutaJuego, opciones = {}) {
     "'/shared/sudoku.js'": `'${urlDe('frontend', 'shared', 'sudoku.js')}'`,
     "'/shared/buscaminas.js'": `'${urlDe('frontend', 'shared', 'buscaminas.js')}'`,
     "'/shared/words.js'": `'${urlDe('frontend', 'shared', 'words.js')}'`,
+    "'/shared/wordle.js'": `'${urlDe('frontend', 'shared', 'wordle.js')}'`,
     "'/shared/catalog.js'": `'${urlDe('frontend', 'shared', 'catalog.js')}'`,
     "'/shared/celebracion.js'": `'${stubs}'`,
     "'/shared/resultado.js'": `'${stubs}'`,

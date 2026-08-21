@@ -93,7 +93,9 @@ export function crearDom(opciones = {}) {
     querySelector: () => null,
     addEventListener(tipo, fn) { listeners.set(`document:${tipo}`, fn); },
     head: { appendChild() {} },
-    body: { appendChild() {} }
+    body: { appendChild() {} },
+    // El Custom del Wordle ajusta el largo de la palabra con una variable CSS
+    documentElement: crearNodo('html')
   };
 
   globalThis.document = documento;

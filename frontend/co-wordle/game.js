@@ -1,3 +1,4 @@
+import { calcularEstadoTeclas } from '/shared/wordle.js';
 import { festejar } from '/shared/celebracion.js';
 import { habilitarCierreResultado } from '/shared/resultado.js';
 
@@ -9,12 +10,6 @@ const FILAS_TECLADO = [
   ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
   ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BORRAR']
 ];
-const PRIORIDAD_TECLA = {
-  ausente: 1,
-  presente: 2,
-  correcto: 3
-};
-
 const socket = io(SERVIDOR_URL);
 
 const elementos = {
@@ -532,7 +527,7 @@ function renderizarTablero() {
 }
 
 function renderizarTeclado() {
-  const estadoTeclas = calcularEstadoTeclas();
+  const estadoTeclas = calcularEstadoTeclas(obtenerHistorialIntentos());
   const habilitado = esMiTurno();
   const partidaTerminada = estadoCliente.estadoPartida?.fase === 'terminada';
 
@@ -586,23 +581,6 @@ function lanzarFestejoUnaVez() {
 
   estadoCliente.festejado = true;
   festejar();
-}
-
-function calcularEstadoTeclas() {
-  const mapa = {};
-
-  obtenerHistorialIntentos().forEach((intento) => {
-    intento.palabra.split('').forEach((letra, indice) => {
-      const color = intento.colores[indice];
-      const colorPrevio = mapa[letra];
-
-      if (!colorPrevio || PRIORIDAD_TECLA[color] > PRIORIDAD_TECLA[colorPrevio]) {
-        mapa[letra] = color;
-      }
-    });
-  });
-
-  return mapa;
 }
 
 function mostrarPanelInicio() {

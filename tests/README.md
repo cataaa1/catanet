@@ -26,10 +26,16 @@ con un JSON al final.
 
 | Archivo | Qué prueba |
 |---|---|
+| `motor-wordle` | Los colores, sobre todo con letras repetidas, la normalización y la lista de palabras |
 | `motor-buscaminas` | Generación, cascada, banderas, chording, victoria y que la vista pública no filtre dónde están las minas |
+| `salas-co-wordle` | Turnos, seis intentos compartidos, victoria en equipo y alternancia en la revancha |
+| `salas-versus-wordle` | Tablero propio de cada quien, puntaje y que no haya turnos |
 | `salas-buscaminas` | Salas de cooperativo y versus, sin sockets de por medio |
+| `online-wordle` | Co-Wordle y Versus contra el servidor real, con dos clientes |
 | `online-buscaminas` | Servidor real y dos clientes de Socket.io jugando |
 | `online-sudoku` | Tablero diario y carrera, con servidor real y tres clientes |
+| `wordle-individual` | Partidas enteras: escribir, ganar, perder a los seis intentos y la ayuda |
+| `wordle-custom` | Que la palabra del link mande, con sus colores y su victoria |
 | `sudoku-individual` | Escribir, deshacer, lápiz, pistas y los tres errores |
 | `sudoku-diario` | Vidas, marcado de errores y que el progreso sobreviva a recargar |
 | `buscaminas-individual` | Partida completa: ganar despejando y perder pisando una mina |
@@ -47,4 +53,6 @@ con un JSON al final.
 - `ayudas/servidor.mjs` — levanta el servidor real y conecta clientes
 - `ayudas/motor-espia.mjs` — envuelve el motor del Buscaminas para que la prueba
   sepa dónde están las minas y pueda ganar o perder a propósito
+- `ayudas/palabras-espia.mjs` — lo mismo para el Wordle: anota qué palabra salió
+  sorteada, porque si no la prueba no podría ganar a propósito
 - `ayudas/stubs.mjs` — reemplazos del festejo y del cierre del resultado

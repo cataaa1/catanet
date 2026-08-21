@@ -68,6 +68,7 @@ CataNet/
     │   ├── words.js             ← palabras del lado cliente
     │   ├── sudoku.js            ← lógica compartida de Sudoku
     │   ├── buscaminas.js        ← motor del Buscaminas (cliente y servidor)
+    │   ├── wordle.js            ← colores y validación del Wordle (cliente y servidor)
     │   ├── celebracion.js       ← festejo al ganar (papel picado + pulso)
     │   ├── resultado.js         ← cruz para cerrar el panel de resultado
     │   └── vendor/sudoku-lib.js ← librería externa de generación/solución
@@ -138,7 +139,7 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 ## Estado actual del proyecto
 
 ### Listo
-- [x] Pruebas: 251 chequeos sobre motores, salas, juegos y servidor real
+- [x] Pruebas: 406 chequeos sobre motores, salas, juegos y servidor real
 - [x] Deploy en Render, con auto-deploy en cada push a `main`
 - [x] Estructura de carpetas y documentación
 - [x] Backend: `server.js` con Express + Socket.io + estáticos

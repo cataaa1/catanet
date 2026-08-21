@@ -1,4 +1,5 @@
 const { randomBytes } = require('crypto');
+const { calcularColores, esIntentoValido, normalizarLetrasParciales } = require('./motorWordle');
 const { obtenerPalabraAleatoria, esPalabraAceptada } = require('./words');
 
 const LONGITUD_SALA = 4;
@@ -188,7 +189,7 @@ function registrarIntento(salaId, socketId, intentoCrudo) {
 
   const intento = normalizarIntento(intentoCrudo);
 
-  if (!esIntentoValido(intento)) {
+  if (!esIntentoValido(intento, LONGITUD_PALABRA)) {
     throw new Error('El intento debe tener 5 letras y usar solo A-Z o Ñ, sin tildes.');
   }
 
@@ -246,7 +247,7 @@ function registrarTipeo(salaId, socketId, letrasCrudas) {
 
   return {
     sala,
-    letras: normalizarLetrasParciales(letrasCrudas)
+    letras: normalizarLetrasParciales(letrasCrudas, LONGITUD_PALABRA)
   };
 }
 
@@ -425,48 +426,8 @@ function obtenerSiguienteIndiceInicio(sala) {
   return (sala.indiceInicioActual + 1) % sala.ordenJugadores.length;
 }
 
-function calcularColores(palabraSecreta, intento) {
-  const colores = Array(LONGITUD_PALABRA).fill('ausente');
-  const letrasDisponibles = palabraSecreta.split('');
-  const letrasIntento = intento.split('');
-
-  for (let indice = 0; indice < LONGITUD_PALABRA; indice += 1) {
-    if (letrasIntento[indice] === letrasDisponibles[indice]) {
-      colores[indice] = 'correcto';
-      letrasDisponibles[indice] = null;
-      letrasIntento[indice] = null;
-    }
-  }
-
-  for (let indice = 0; indice < LONGITUD_PALABRA; indice += 1) {
-    if (!letrasIntento[indice]) {
-      continue;
-    }
-
-    const posicionDisponible = letrasDisponibles.indexOf(letrasIntento[indice]);
-
-    if (posicionDisponible !== -1) {
-      colores[indice] = 'presente';
-      letrasDisponibles[posicionDisponible] = null;
-    }
-  }
-
-  return colores;
-}
-
-function esIntentoValido(intento) {
-  return /^[A-ZÑ]{5}$/.test(intento);
-}
-
 function normalizarIntento(intentoCrudo) {
   return String(intentoCrudo || '').trim().toUpperCase();
-}
-
-function normalizarLetrasParciales(letrasCrudas) {
-  return String(letrasCrudas || '')
-    .toUpperCase()
-    .replace(/[^A-ZÑ]/g, '')
-    .slice(0, LONGITUD_PALABRA);
 }
 
 function normalizarSalaId(salaId) {

@@ -1,3 +1,4 @@
+import { calcularColores, calcularEstadoTeclas } from '/shared/wordle.js';
 import { festejar } from '/shared/celebracion.js';
 import { habilitarCierreResultado } from '/shared/resultado.js';
 
@@ -8,12 +9,6 @@ const FILAS_TECLADO = [
   ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
   ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BORRAR']
 ];
-const PRIORIDAD_TECLA = {
-  ausente: 1,
-  presente: 2,
-  correcto: 3
-};
-
 const elementos = {
   panelCreador: document.getElementById('panel-creador'),
   panelJuego: document.getElementById('panel-juego'),
@@ -306,7 +301,7 @@ function renderizarTablero() {
 }
 
 function renderizarTeclado() {
-  const estadoTeclas = calcularEstadoTeclas();
+  const estadoTeclas = calcularEstadoTeclas(estado.historialIntentos);
   const partidaTerminada = estado.fase !== 'jugando';
 
   elementos.teclado.hidden = partidaTerminada;
@@ -356,54 +351,6 @@ function lanzarFestejoUnaVez() {
 
   estado.festejado = true;
   festejar();
-}
-
-function calcularEstadoTeclas() {
-  const mapa = {};
-
-  estado.historialIntentos.forEach((intento) => {
-    intento.palabra.split('').forEach((letra, indice) => {
-      const color = intento.colores[indice];
-      const colorPrevio = mapa[letra];
-
-      if (!colorPrevio || PRIORIDAD_TECLA[color] > PRIORIDAD_TECLA[colorPrevio]) {
-        mapa[letra] = color;
-      }
-    });
-  });
-
-  return mapa;
-}
-
-function calcularColores(palabraSecreta, intento) {
-  const colores = Array(estado.longitudPalabra).fill('ausente');
-  const letrasDisponibles = palabraSecreta.split('');
-  const letrasIntento = intento.split('');
-
-  // Primera pasada: marcamos letras en la posicion exacta.
-  for (let indice = 0; indice < estado.longitudPalabra; indice += 1) {
-    if (letrasIntento[indice] === letrasDisponibles[indice]) {
-      colores[indice] = 'correcto';
-      letrasDisponibles[indice] = null;
-      letrasIntento[indice] = null;
-    }
-  }
-
-  // Segunda pasada: marcamos presentes sin contar dos veces letras repetidas.
-  for (let indice = 0; indice < estado.longitudPalabra; indice += 1) {
-    if (!letrasIntento[indice]) {
-      continue;
-    }
-
-    const posicionDisponible = letrasDisponibles.indexOf(letrasIntento[indice]);
-
-    if (posicionDisponible !== -1) {
-      colores[indice] = 'presente';
-      letrasDisponibles[posicionDisponible] = null;
-    }
-  }
-
-  return colores;
 }
 
 function abrirAyuda() {

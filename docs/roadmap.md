@@ -53,11 +53,9 @@ mientras no existan, la página está prometiendo de más.
 ### Calidad
 - [ ] **Persistencia de la partida en curso.** El Sudoku diario ya se guarda en
       `localStorage`; el resto de los modos todavía pierden el tablero al recargar.
-- [x] ~~Tests~~ — 251 chequeos en `/tests`, se corren con `npm test`. Cubren los
-      motores de Sudoku y Buscaminas, las salas, los juegos contra un DOM falso y
-      los modos online contra el servidor real.
-- [ ] **Faltan pruebas del Wordle**: los colores con letras repetidas y las
-      transiciones de turno del Co-Wordle siguen sin cubrir.
+- [x] ~~Tests~~ — 406 chequeos en `/tests`, se corren con `npm test`. Cubren los
+      tres motores, las salas de los cuatro juegos online, los juegos contra un
+      DOM falso y los modos online contra el servidor real.
 - [ ] **Reconexión a una sala.** Hoy si se te corta la conexión, se cierra la sala.
 - [ ] **Limpieza de assets sin usar.** Quedaron huérfanos
       `frontend/hub/assets/hub-pixel-river.png` y `logo-ajedrez.png`. Los cuatro

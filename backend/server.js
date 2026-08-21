@@ -54,6 +54,7 @@ const {
   cerrarSalaSudoku,
   iniciarLimpiezaSudokuPeriodica
 } = require('./sudokuRooms');
+const { cargarMotorWordle } = require('./motorWordle');
 const {
   cargarMotorSudoku,
   pedirSudokuDiario,
@@ -549,6 +550,7 @@ async function iniciarServidor() {
   try {
     // El motor del Buscaminas es un modulo ES y este archivo es CommonJS, asi
     // que se carga con import() dinamico antes de empezar a escuchar.
+    await cargarMotorWordle();
     await cargarMotorBuscaminas();
     await cargarMotorSudoku();
     await prepararMotorSalasSudoku();

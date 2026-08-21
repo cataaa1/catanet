@@ -1,4 +1,5 @@
 const { randomBytes } = require('crypto');
+const { calcularColores } = require('./motorWordle');
 const {
   obtenerPalabraAleatoria,
   esPalabraAceptada,
@@ -446,35 +447,6 @@ function crearIdSala() {
   }
 
   return salaId;
-}
-
-function calcularColores(palabraSecreta, intento) {
-  const colores = Array(LONGITUD_PALABRA).fill('ausente');
-  const letrasDisponibles = palabraSecreta.split('');
-  const letrasIntento = intento.split('');
-
-  for (let indice = 0; indice < LONGITUD_PALABRA; indice += 1) {
-    if (letrasIntento[indice] === letrasDisponibles[indice]) {
-      colores[indice] = 'correcto';
-      letrasDisponibles[indice] = null;
-      letrasIntento[indice] = null;
-    }
-  }
-
-  for (let indice = 0; indice < LONGITUD_PALABRA; indice += 1) {
-    if (!letrasIntento[indice]) {
-      continue;
-    }
-
-    const posicionDisponible = letrasDisponibles.indexOf(letrasIntento[indice]);
-
-    if (posicionDisponible !== -1) {
-      colores[indice] = 'presente';
-      letrasDisponibles[posicionDisponible] = null;
-    }
-  }
-
-  return colores;
 }
 
 function normalizarIntento(intentoCrudo) {
