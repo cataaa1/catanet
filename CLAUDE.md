@@ -142,7 +142,7 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 ## Estado actual del proyecto
 
 ### Listo
-- [x] Pruebas: 434 chequeos sobre motores, salas, juegos y servidor real
+- [x] Pruebas: 441 chequeos sobre motores, salas, juegos y servidor real
 - [x] Deploy en Render, con auto-deploy en cada push a `main`
 - [x] Estructura de carpetas y documentación
 - [x] Backend: `server.js` con Express + Socket.io + estáticos

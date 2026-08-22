@@ -108,13 +108,16 @@
       position: relative;
       z-index: 1;
       max-width: 1100px;
+      min-height: 100vh;
       margin: 0 auto;
-      padding: 72px 24px 96px;
+      padding: 40px 24px 34px;
+      display: flex;
+      flex-direction: column;
     }
 
     .hero {
       text-align: center;
-      margin-bottom: 64px;
+      margin-bottom: 40px;
       animation: rise 0.8s ease-out both;
     }
 
@@ -172,6 +175,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 24px;
+      min-height: 0;
     }
 
     .card {
@@ -344,7 +348,8 @@
 
     .footer {
       text-align: center;
-      margin-top: 80px;
+      margin-top: auto;
+      padding-top: 20px;
       font-size: 13px;
       color: rgba(84, 65, 78, 0.74);
       opacity: 0.85;
@@ -431,6 +436,30 @@
       }
     }
 
+    @media (max-height: 820px) {
+      .wrap {
+        padding-top: 18px;
+        padding-bottom: 22px;
+      }
+
+      .hero {
+        margin-bottom: 24px;
+      }
+
+      h1 {
+        font-size: clamp(36px, 4.8vw, 48px);
+      }
+
+      .card {
+        min-height: 0;
+        padding: 22px;
+      }
+
+      .footer {
+        padding-top: 12px;
+      }
+    }
+
     @media (max-width: 900px) {
       .wrap {
         padding-top: 56px;
@@ -486,8 +515,6 @@
   <div class="wrap">
     <header class="hero">
       <h1>Elige un <span class="accent">juego</span></h1>
-      
-   
     </header>
 
     <main class="grid" id="catalogo-familias" aria-label="Familias de juegos"></main>

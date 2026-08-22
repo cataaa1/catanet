@@ -133,6 +133,11 @@ hacia los bordes. Ver implementación en `frontend/hub/index.html`.
 }
 ```
 
+Los cuatro menús arman la página igual: `.wrap` es una columna flex de
+`min-height: 100vh` y el footer va con `margin-top: auto`, así queda pegado
+abajo y la pantalla no scrollea. Abajo de `820px` de alto hay una media query
+que comprime paddings y títulos, para que las cards sigan entrando.
+
 ## Iconos del sitio
 
 Viven en `/frontend/icons/` y se generaron a partir de dos ilustraciones en pixel
@@ -225,15 +230,42 @@ import { programarAvion } from '/shared/avion.js';
 programarAvion();
 ```
 
-El sprite es `/hub/assets/avion-catanet.png`: 93x18 píxeles, 326 bytes, con los
-colores de la paleta (ciruela el cuerpo, menta las alas, berenjena las líneas).
-Se agranda desde el CSS con `image-rendering: pixelated` y **siempre por un
-número entero** —3x en escritorio, 2x en pantallas angostas o bajas—, porque con un factor
-roto los píxeles quedan borroneados y se pierde el estilo.
+El sprite es `/hub/assets/avion-catanet.png`: **una tira de tres cuadros** de
+93x18, 406 bytes, con los colores de la paleta (ciruela el cuerpo, menta las
+alas, berenjena las líneas). Los tres cuadros son idénticos salvo la hélice: el
+disco tenue está siempre —una hélice girando se ve como una sombra continua— y
+encima pasa la pala marcada. Alternándolos cada 0,18s parece que da vueltas.
 
-Vuela una vez a los 7 segundos de entrar y después cada 1 o 2 minutos, sorteado
-para que no se vuelva previsible. Tarda 20 segundos en cruzar y se balancea
-mientras tanto. Dos detalles:
+Se agranda desde el CSS con `image-rendering: pixelated` y **siempre por un
+número entero** —3x en escritorio, 2x en pantallas angostas o bajas—, porque
+con un factor roto los píxeles quedan borroneados. El cambio de cuadro va por
+`background-position` en **porcentaje** (`0%` → `150%` en `steps(3)`, que para
+en 0%, 50% y 100%), así el mismo CSS sirve para cualquier escala.
+
+Mientras cruza hace tres cosas a la vez, cada una en su propia capa para que no
+se peleen por el `transform`:
+
+| Capa | Qué anima |
+|---|---|
+| `.avion` | el cruce de lado a lado, 20s lineales |
+| `.avion__cuerpo` | el viboreo, con los pasos desparejos para que no sea una onda perfecta |
+| `.avion__dibujo` | la hélice |
+| `.avion__humo` | cinco bocanadas escalonadas que salen del motor |
+
+El humo se va para atrás más o menos a la misma velocidad a la que avanza el
+avión, así parece que se queda flotando en el aire en vez de viajar con él.
+
+### Cuándo aparece
+Vuela a los 7 segundos de entrar y después cada 30 a 60 segundos, sorteado para
+que no se vuelva previsible. También se lo puede llamar **tocando la palabra
+destacada del título** (*juego*, *Wordle*, *Sudoku*, *Buscaminas*), que para eso
+queda como botón, con teclado incluido.
+
+Eso no se puede spamear: si ya viene cruzando, insistir no hace nada. Cada
+llamada además reprograma el vuelo automático, así que tampoco sale uno justo
+después del que pediste.
+
+Dos detalles más:
 
 - si la pestaña está de fondo el vuelo no se dispara, se guarda para la próxima;
 - con `prefers-reduced-motion` el avión se queda quieto en el medio de la
