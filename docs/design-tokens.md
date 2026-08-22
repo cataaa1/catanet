@@ -207,3 +207,29 @@ parecer plana mirando solo hacia abajo:
 
 El estiramiento es de 1,6x. Con 1,9x el recorte queda más ancho, pero las nubes
 empiezan a verse deformadas. Los cuatro verticales juntos pesan 911 KB.
+
+## La marca de los menús
+
+Arriba del título de cada menú no hay un pill: pasa un avioncito de pixel art
+arrastrando un cartel que dice CATANET. Lo maneja `/shared/avion.js`, que se
+trae su propio CSS —igual que `celebracion.js`—, así que una página solo hace:
+
+```js
+import { programarAvion } from '/shared/avion.js';
+
+programarAvion();
+```
+
+El sprite es `/hub/assets/avion-catanet.png`: 93x18 píxeles, 326 bytes, con los
+colores de la paleta (ciruela el cuerpo, menta las alas, berenjena las líneas).
+Se agranda desde el CSS con `image-rendering: pixelated` y **siempre por un
+número entero** —3x en escritorio, 2x en pantallas angostas o bajas—, porque con un factor
+roto los píxeles quedan borroneados y se pierde el estilo.
+
+Vuela una vez a los 7 segundos de entrar y después cada 1 o 2 minutos, sorteado
+para que no se vuelva previsible. Tarda 14 segundos en cruzar y se balancea
+mientras tanto. Dos detalles:
+
+- si la pestaña está de fondo el vuelo no se dispara, se guarda para la próxima;
+- con `prefers-reduced-motion` el avión se queda quieto en el medio de la
+  franja, así la marca sigue estando arriba del título pero nada se mueve.
