@@ -1,5 +1,7 @@
+import { readFileSync } from 'node:fs';
+
 import { crearReporte, informar } from './ayudas/reportar.mjs';
-import { ruta, urlDe } from './ayudas/rutas.mjs';
+import { ruta } from './ayudas/rutas.mjs';
 import { cargarJuego, cargarLibreriaSudoku } from './ayudas/juego.mjs';
 
 const { chequear, resultados } = crearReporte();
@@ -55,7 +57,7 @@ numpad.listas = { '[data-valor]': teclas };
 const chips = ['facil', 'medio', 'dificil'].map((d) => crearElemento(`chip-${d}`, { dificultad: d }));
 document.getElementById('grupo-dificultades').listas = { '[data-dificultad]': chips };
 
-await import('file:///C:/Users/catal/AppData/Local/Temp/claude/c--Users-catal-Dropbox-repos-CataNet/49f0a653-5469-4835-a4d9-d8c2fc7fbb7f/scratchpad/game-test.mjs');
+await cargarJuego('frontend/sudoku/individual/game.js');
 await new Promise((r) => setTimeout(r, 4000));
 
 const tablero = document.getElementById('tablero');
@@ -168,5 +170,41 @@ chequear('un numero equivocado gasta una vida',
   `${antesDelError} -> ${document.getElementById('texto-errores').textContent}`);
 chequear('la celda equivocada se marca en rojo',
   htmlDeCelda(equivocada.i).includes('celda--error'));
+
+// 11. El reloj corre desde que aparece el tablero y se frena al terminar
+const reloj = () => document.getElementById('texto-reloj').textContent;
+
+chequear('el reloj tiene formato mm:ss', /^\d\d:\d\d$/.test(reloj()), reloj());
+chequear('el reloj avanza mientras se juega', reloj() !== '00:00', reloj());
+
+// Gastamos las vidas que queden con numeros que no van
+for (let i = 0; i < 81 && !document.getElementById('texto-errores').textContent.startsWith('3'); i += 1) {
+  if (tableroLeido[i] !== '.' || solucionIndividual[i] === '1' || solucionIndividual[i] === '2') continue;
+  clickCelda(Math.floor(i / 9), i % 9);
+  teclear('2');
+}
+
+chequear('con tres errores se termina la partida',
+  document.getElementById('texto-errores').textContent === '3 / 3',
+  document.getElementById('texto-errores').textContent);
+
+const alPerder = reloj();
+await new Promise((r) => setTimeout(r, 1300));
+
+chequear('al terminar la partida el reloj se frena', reloj() === alPerder, `${alPerder} -> ${reloj()}`);
+
+// 12. Las celdas con notas no pueden ser mas altas que el resto. Es CSS, asi
+// que se chequea la hoja: las notas van encimadas y las filas del tablero
+// miden todas lo mismo, que es lo que hacia falta para que no se deformara.
+const hoja = readFileSync(ruta('frontend', 'sudoku', 'individual', 'style.css'), 'utf8');
+const reglaNotas = hoja.slice(hoja.indexOf('.celda__notas {'), hoja.indexOf('.celda__nota {'));
+const reglaTablero = hoja.slice(hoja.indexOf('.tablero {'), hoja.indexOf('.tablero {') + 400);
+
+chequear('las notas van encimadas a la celda',
+  reglaNotas.includes('position: absolute') && reglaNotas.includes('inset: 0'));
+chequear('las notas no ocupan alto propio',
+  !reglaNotas.includes('height: 100%'), reglaNotas.trim());
+chequear('las nueve filas del tablero miden lo mismo',
+  reglaTablero.includes('grid-auto-rows: minmax(0, 1fr)'));
 
 informar(resultados);

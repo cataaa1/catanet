@@ -156,6 +156,11 @@ y lo más apagado del dibujo, en 17.
 Después se recortaron a lo que no es transparente y se pasaron a paleta. Los ocho
 archivos juntos pesan 170 KB.
 
+Un PNG con paleta guarda un índice por píxel y **la transparencia va aparte**, en
+un trozo `tRNS`. Sin él los píxeles transparentes terminan en el color más
+parecido a (0,0,0) —o sea negro— y el dibujo aparece adentro de un recuadro
+oscuro. El índice 0 de la paleta se reserva para ellos.
+
 Las versiones *maskable* llevan el dibujo al 78% y rellenan el margen con el verde
 del propio cielo, para que Android pueda recortar sin comerse nada.
 
@@ -227,7 +232,7 @@ número entero** —3x en escritorio, 2x en pantallas angostas o bajas—, porqu
 roto los píxeles quedan borroneados y se pierde el estilo.
 
 Vuela una vez a los 7 segundos de entrar y después cada 1 o 2 minutos, sorteado
-para que no se vuelva previsible. Tarda 14 segundos en cruzar y se balancea
+para que no se vuelva previsible. Tarda 20 segundos en cruzar y se balancea
 mientras tanto. Dos detalles:
 
 - si la pestaña está de fondo el vuelo no se dispara, se guarda para la próxima;

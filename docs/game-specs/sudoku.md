@@ -44,8 +44,14 @@ dificultad), y por eso la pantalla muestra "Generando tablero..." mientras traba
 3. Puede cambiar de dificultad con los chips Fácil / Medio / Difícil — cada
    cambio genera un tablero nuevo
 4. "Nuevo tablero" regenera con la dificultad actual
-5. Al completar la grilla correctamente aparece el panel de resultado con la
-   opción de jugar otro
+5. Al completar la grilla correctamente aparece el panel de resultado, que dice
+   cuánto tardó y ofrece jugar otro
+
+Arriba del panel de controles hay dos marcadores: **Tiempo** y **Errores**. El
+reloj arranca cuando aparece el tablero y se frena al ganar o al quedarse sin
+errores. Cuenta contra el reloj del sistema en vez de sumar de a un segundo,
+porque el navegador frena los temporizadores de las pestañas de fondo y si no
+el tiempo quedaría corto.
 
 ## Controles
 

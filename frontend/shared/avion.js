@@ -14,7 +14,7 @@ const ESCALA = 3;
 const ESCALA_CHICA = 2;
 const AIRE = 5;                 // el lugar de sobra para que el balanceo no se corte
 
-const DURACION = 14000;         // lo que tarda en cruzar de lado a lado
+const DURACION = 20000;         // lo que tarda en cruzar de lado a lado
 const PRIMERA_ESPERA = 7000;    // el primer vuelo, al ratito de entrar
 const ESPERA_MINIMA = 60000;
 const ESPERA_MAXIMA = 120000;

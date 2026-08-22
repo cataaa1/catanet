@@ -28,6 +28,7 @@ const elementos = {
   badgeNotas: document.getElementById('badge-notas'),
   badgePistas: document.getElementById('badge-pistas'),
   textoErrores: document.getElementById('texto-errores'),
+  textoReloj: document.getElementById('texto-reloj'),
   panelResultado: document.getElementById('panel-resultado'),
   resultadoTexto: document.getElementById('resultado-texto'),
   botonReiniciar: document.getElementById('boton-reiniciar'),
@@ -52,6 +53,9 @@ const estado = {
   fase: 'jugando',
   festejado: false,
   generando: false,
+  segundos: 0,
+  arranque: 0,
+  intervalo: null,
   toastTimeout: null
 };
 
@@ -113,6 +117,7 @@ async function iniciarNuevaPartida(dificultadId) {
     estado.celdaSeleccionada = buscarPrimeraEditable();
     estado.fase = 'jugando';
     elementos.panelResultado.hidden = true;
+    arrancarReloj();
   } catch (error) {
     estado.fase = 'jugando';
     mostrarToast('No pude generar un tablero nuevo. Intenta otra vez.');
@@ -410,6 +415,7 @@ function sincronizarEstadoPartida() {
 
   if (estado.errores >= MAXIMO_ERRORES_SUDOKU && estado.fase === 'jugando') {
     estado.fase = 'perdido';
+    detenerReloj();
     elementos.resultadoTexto.textContent = `Se acabaron los ${MAXIMO_ERRORES_SUDOKU} errores. Proba con un tablero nuevo.`;
     elementos.panelResultado.hidden = false;
     renderizarTodo();
@@ -418,12 +424,47 @@ function sincronizarEstadoPartida() {
 
   if (!estado.conflictos.size && estaSudokuResuelto(estado.tableroActual, estado.tableroResuelto)) {
     estado.fase = 'ganado';
-    elementos.resultadoTexto.textContent = `Completaste el tablero en dificultad ${obtenerDificultadSudoku(estado.dificultad).etiqueta.toLowerCase()}.`;
+    detenerReloj();
+    elementos.resultadoTexto.textContent = `Resolviste el tablero de dificultad ${obtenerDificultadSudoku(estado.dificultad).etiqueta.toLowerCase()} en ${formatearReloj(estado.segundos)}.`;
     elementos.panelResultado.hidden = false;
     lanzarFestejoUnaVez();
   }
 
   renderizarTodo();
+}
+
+// El reloj cuenta desde que aparece el tablero hasta que termina la partida.
+// Va contra el reloj del sistema y no sumando de a un segundo, porque el
+// navegador frena los temporizadores de las pestañas de fondo y el tiempo
+// quedaria corto.
+function arrancarReloj() {
+  detenerReloj();
+
+  estado.arranque = Date.now();
+  estado.segundos = 0;
+  renderizarReloj();
+
+  estado.intervalo = setInterval(() => {
+    estado.segundos = Math.floor((Date.now() - estado.arranque) / 1000);
+    renderizarReloj();
+  }, 1000);
+}
+
+function detenerReloj() {
+  if (estado.intervalo !== null) {
+    clearInterval(estado.intervalo);
+    estado.intervalo = null;
+  }
+}
+
+function renderizarReloj() {
+  elementos.textoReloj.textContent = formatearReloj(estado.segundos);
+}
+
+function formatearReloj(segundos) {
+  const minutos = Math.floor(segundos / 60);
+
+  return `${String(minutos).padStart(2, '0')}:${String(segundos % 60).padStart(2, '0')}`;
 }
 
 // El festejo se dispara una sola vez por tablero resuelto
