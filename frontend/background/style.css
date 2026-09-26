@@ -1,0 +1,38 @@
+:root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; color: #fff7ed; background: #54414e; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { font: inherit; }
+button, .volver { color: inherit; border: 1px solid #ffffff38; background: #403340b8; border-radius: 100px; padding: 12px 18px; text-decoration: none; font-size: 13px; cursor: pointer; backdrop-filter: blur(12px); }
+button:hover, .volver:hover { background: #665061; border-color: #c5ebc3; }
+button:disabled { opacity: .5; cursor: wait; }
+:focus-visible { outline: 2px solid #c5ebc3; outline-offset: 5px; }
+[hidden] { display: none !important; }
+.paisaje { position: relative; height: 100svh; min-height: 360px; overflow: hidden; isolation: isolate; }
+.ambiente { position: absolute; inset: -40px; z-index: -1; background: linear-gradient(#54414e55, #302632bb), var(--fondo) center / cover; filter: blur(28px); }
+.lienzo { position: absolute; top: 50%; left: 50%; width: min(100vw, calc(100svh * 1400 / 788)); aspect-ratio: 1400 / 788; transform: translate(-50%, -50%); }
+.lienzo img, canvas { position: absolute; width: 100%; height: 100%; inset: 0; image-rendering: pixelated; }
+.interfaz { position: absolute; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 30px 40px; }
+.encabezado { top: 0; background: linear-gradient(#352a3b66, transparent); }
+.etiqueta { font-size: 10px; letter-spacing: .2em; text-shadow: 0 1px 8px #302632; }
+.indicador { display: inline-block; width: 6px; height: 6px; background: #c5ebc3; margin-right: 9px; box-shadow: 0 0 12px #c5ebc388; }
+.pie { bottom: 0; align-items: flex-end; padding-top: 65px; background: linear-gradient(transparent, #302632b8); }
+.numero { font-size: 10px; letter-spacing: .24em; color: #d7e5d0; margin: 0 0 12px; }
+h1 { font-size: clamp(24px, 3vw, 40px); font-weight: 400; letter-spacing: -.045em; margin: 0 0 10px; text-shadow: 0 2px 16px #30263266; }
+#estado { margin: 0; font-size: 13px; color: #f0dce6; }
+.controles { display: flex; gap: 8px; flex-wrap: wrap; }
+#mostrar { position: absolute; bottom: max(20px, env(safe-area-inset-bottom)); right: 20px; opacity: .65; }
+#mostrar:hover, #mostrar:focus-visible { opacity: 1; }
+.aviso { position: absolute; top: 80px; width: 100%; text-align: center; }
+@media (max-width: 650px) {
+  .interfaz { padding: 24px 20px; }
+  .etiqueta { max-width: 130px; line-height: 1.8; font-size: 8px; text-align: right; }
+  .pie { flex-direction: column; align-items: flex-start; gap: 22px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .controles { gap: 6px; }
+  button { font-size: 11px; padding: 11px 12px; }
+}
+@media (max-height: 500px) and (min-width: 651px) {
+  .interfaz { padding: 16px 24px; }
+  .numero, #estado { display: none; }
+  h1 { font-size: 24px; margin: 0; }
+}

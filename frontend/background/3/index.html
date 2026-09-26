@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#8a5a78">
+  <title>Entre montañas · CataNet</title>
+  <link rel="icon" href="/icons/favicon-32.png" type="image/png">
+  <link rel="stylesheet" href="/background/style.css">
+  <script type="module" src="/background/3/escena.js"></script>
+</head>
+<body>
+  <main class="paisaje" aria-label="Una cordillera nevada al atardecer, con el sol entre los picos y pasto adelante." style="--fondo: url('/hub/assets/menus/background-3.png')">
+    <div class="ambiente" aria-hidden="true"></div>
+    <div class="lienzo">
+      <img src="/hub/assets/menus/background-3.png" alt="Una cordillera nevada al atardecer, con el sol entre los picos y pasto adelante.">
+      <canvas id="escena" width="1400" height="788" aria-hidden="true"></canvas>
+    </div>
+    <header class="interfaz encabezado">
+      <a class="volver" href="/background/">← Paisajes</a>
+      <span class="etiqueta"><span class="indicador"></span> FONDO DEL MENÚ BUSCAMINAS</span>
+    </header>
+    <footer class="interfaz pie">
+      <div class="descripcion">
+        <p class="numero">PAISAJES / 03</p>
+        <h1>Entre montañas.</h1>
+        <p id="estado" role="status">Mirá al águila dar vueltas.</p>
+      </div>
+      <div class="controles" aria-label="Controles del paisaje">
+        <button id="pausa" type="button" disabled>Pausar</button>
+        <button id="pantalla" type="button" hidden>Pantalla completa</button>
+        <button id="ocultar" type="button" aria-pressed="false">Ocultar controles</button>
+      </div>
+    </footer>
+    <button id="mostrar" type="button" hidden>Mostrar controles</button>
+    <noscript><p class="aviso">Activá JavaScript para ver el paisaje animado.</p></noscript>
+  </main>
+</body>
+</html>

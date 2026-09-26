@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#54414e">
+  <title>Paisajes · CataNet</title>
+  <link rel="icon" href="/icons/favicon-32.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; color: #fff7ed; background: #3a2e3b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100svh; padding: 40px 20px 60px; }
+    .contenido { max-width: 1100px; margin: 0 auto; }
+    .volver { color: inherit; font-size: 13px; text-decoration: none; opacity: .8; }
+    .volver:hover { opacity: 1; }
+    h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 400; letter-spacing: -.04em; margin: 26px 0 8px; }
+    .bajada { margin: 0 0 32px; color: #e5d3de; font-size: 15px; max-width: 60ch; line-height: 1.5; }
+    .grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 18px; list-style: none; padding: 0; margin: 0; }
+    .tarjeta { display: block; color: inherit; text-decoration: none; border-radius: 14px; overflow: hidden; background: #4a3c4a; border: 1px solid #ffffff1f; transition: transform .2s, border-color .2s; }
+    .tarjeta:hover, .tarjeta:focus-visible { transform: translateY(-3px); border-color: #c5ebc3; }
+    .tarjeta:focus-visible { outline: 2px solid #c5ebc3; outline-offset: 3px; }
+    .tarjeta img { display: block; width: 100%; aspect-ratio: 1400 / 788; object-fit: cover; image-rendering: pixelated; }
+    .texto { padding: 14px 16px 16px; }
+    .numero { font-size: 10px; letter-spacing: .22em; color: #d7e5d0; margin: 0 0 6px; }
+    .titulo { font-size: 18px; margin: 0 0 4px; font-weight: 600; }
+    .detalle { font-size: 13px; margin: 0; color: #e5d3de; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <main class="contenido">
+    <a class="volver" href="/hub/">← CataNet</a>
+    <h1>Paisajes animados</h1>
+    <p class="bajada">Los fondos de CataNet con viento, nubes que pasan y animales.
+      Están en prueba: si quedan bien, reemplazan a los fondos quietos de los menús.</p>
+    <ul class="grilla">
+      <li><a class="tarjeta" href="/background/1/">
+        <img src="/hub/assets/menus/background-1.png" alt="" loading="lazy">
+        <div class="texto"><p class="numero">01 · MENÚ WORDLE</p><p class="titulo">La pradera</p>
+          <p class="detalle">Un cúmulo que avanza, árboles al viento, conejos, un ciervo y pelusas en el aire.</p></div>
+      </a></li>
+      <li><a class="tarjeta" href="/background/2/">
+        <img src="/hub/assets/menus/background-2.png" alt="" loading="lazy">
+        <div class="texto"><p class="numero">02 · MENÚ SUDOKU</p><p class="titulo">Un ratito en el lago</p>
+          <p class="detalle">Reflejos que tiemblan, patos, una garza que pesca, peces y luciérnagas.</p></div>
+      </a></li>
+      <li><a class="tarjeta" href="/background/3/">
+        <img src="/hub/assets/menus/background-3.png" alt="" loading="lazy">
+        <div class="texto"><p class="numero">03 · MENÚ BUSCAMINAS</p><p class="titulo">Entre montañas</p>
+          <p class="detalle">Nubes rasgadas, niebla entre los cerros, un águila planeando y pasto que se mece.</p></div>
+      </a></li>
+      <li><a class="tarjeta" href="/background/4/">
+        <img src="/hub/assets/menus/background-4.png" alt="" loading="lazy">
+        <div class="texto"><p class="numero">04 · HUB</p><p class="titulo">Las colinas</p>
+          <p class="detalle">Pinos y un árbol grande al viento, ciervos pastando, un zorro de paso y el lago brillando.</p></div>
+      </a></li>
+    </ul>
+  </main>
+</body>
+</html>
