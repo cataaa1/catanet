@@ -8,8 +8,8 @@
 //   verde = número de planta (cada árbol o mata se mueve por su cuenta)
 //   azul  = fuerza del viento en esa planta (100 = normal)
 
-export const ANCHO = 1400;
-export const ALTO = 788;
+// El viento se calcula sobre este ancho de referencia, sea cual sea la imagen
+const ANCHO_VIENTO = 1400;
 
 const REGION = { cielo: 1, planta: 2, pasto: 3, agua: 4 };
 const MARGEN_PLANTA = 8; // cuánto puede salirse una copa de su dibujo original
@@ -51,13 +51,15 @@ export function crearAzar(semilla = 1) {
 // recorren el paisaje de izquierda a derecha.
 export function viento(x, tiempo) {
   const base = 0.55 + 0.18 * Math.sin(tiempo * 0.31) + 0.1 * Math.sin(tiempo * 0.83 + 1.3);
-  const frente = Math.sin(x / ANCHO * Math.PI - tiempo * 0.42);
+  const frente = Math.sin(x / ANCHO_VIENTO * Math.PI - tiempo * 0.42);
   const rafaga = Math.pow(Math.max(0, frente), 6) * 0.55;
   return base + rafaga;
 }
 
 // Convierte los píxeles de la máscara en recortes listos para usar
 function leerMascara(imagenMascara) {
+  const ANCHO = imagenMascara.naturalWidth;
+  const ALTO = imagenMascara.naturalHeight;
   const { contexto } = crearLienzo(ANCHO, ALTO);
   contexto.drawImage(imagenMascara, 0, 0);
   const datos = contexto.getImageData(0, 0, ANCHO, ALTO).data;
@@ -131,6 +133,8 @@ function leerMascara(imagenMascara) {
   }
 
   return {
+    ancho: ANCHO,
+    alto: ALTO,
     recortes,
     plantas: [...plantas.values()],
     region(x, y) {
@@ -182,34 +186,52 @@ export function pixel(ctx, x, y, ancho, alto, color) {
   ctx.fillRect(Math.round(x), Math.round(y), ancho, alto);
 }
 
-export async function iniciarPaisaje(escena) {
-  const lienzo = document.querySelector('#escena');
+// Arma un paisaje vivo sobre un <canvas>. Devuelve un control para pausarlo,
+// reanudarlo, pasarle el puntero y desarmarlo. Lo usan tanto las páginas de
+// /background como los fondos de los menús.
+//   ajuste: 'cubrir' si el canvas se muestra con object-fit: cover
+export async function crearPaisaje(lienzo, escena, { fps = 30, ajuste = 'contener' } = {}) {
   const ctx = lienzo.getContext('2d');
-  const imagenPagina = document.querySelector('.lienzo img');
-  const pausa = document.querySelector('#pausa');
-  const estado = document.querySelector('#estado');
-  const reducirMovimiento = matchMedia('(prefers-reduced-motion: reduce)');
-  const mensajeQuieto = 'Un momento de quietud. Animación pausada.';
-  const mensajeVivo = escena.mensaje || 'El mundo puede esperar.';
+  if (!ctx) throw new Error('Canvas no disponible');
 
-  let pausado = reducirMovimiento.matches;
-  let listo = false;
-  let tiempo = 0;
-  let anterior = null;
-  let cuadro = null;
-  let mundo = null;
+  const [imagen, imagenMascara, textura] = await Promise.all([
+    cargarImagen(escena.imagen),
+    cargarImagen(escena.mascara),
+    cargarImagen(escena.cielo.textura)
+  ]);
+  const mascara = leerMascara(imagenMascara);
+  const ANCHO = mascara.ancho;
+  const ALTO = mascara.alto;
+  // En las ilustraciones verticales el píxel del dibujo es más grande: todo
+  // movimiento se agranda en la misma proporción, y los animales viven en
+  // coordenadas achicadas por ese factor (así se comportan igual en ambas)
+  const escalaMovimiento = escena.movimiento ?? 1;
+  const mundo = {
+    ...mascara,
+    ancho: ANCHO / escalaMovimiento,
+    alto: ALTO / escalaMovimiento,
+    region: (x, y) => mascara.region(x * escalaMovimiento, y * escalaMovimiento),
+    imagen,
+    textura,
+    puntero: null,
+    vida: []
+  };
+  mundo.vida = escena.crearVida ? escena.crearVida(mundo) : [];
 
   lienzo.width = ANCHO;
   lienzo.height = ALTO;
   ctx.imageSmoothingEnabled = false;
-
   const fuente = crearLienzo(ANCHO, ALTO);
   const capa = crearLienzo(ANCHO, ALTO);
+
+  let tiempo = 0;
+  let anterior = null;
+  let cuadro = null;
+  let activo = false;
 
   function dibujarCielo() {
     const recorte = mundo.recortes.cielo;
     if (!recorte) return;
-    const { textura } = mundo;
     const altoCielo = textura.height;
     const largo = textura.width;
     const c = capa.contexto;
@@ -239,7 +261,7 @@ export async function iniciarPaisaje(escena) {
       const fase = x * 0.37 + y * 0.11;
       const brillo = 0.35 + 0.65 * Math.pow((1 + Math.sin(tiempo * (0.9 + (x % 7) * 0.12) + fase)) / 2, 2);
       ctx.globalAlpha = brillo;
-      ctx.drawImage(mundo.imagen, x, y, ancho, alto, x, y, ancho, alto);
+      ctx.drawImage(imagen, x, y, ancho, alto, x, y, ancho, alto);
     }
     ctx.globalAlpha = 1;
   }
@@ -257,23 +279,24 @@ export async function iniciarPaisaje(escena) {
   }
 
   function dibujarPlantas() {
+    const franja = Math.max(3, Math.round(3 * escalaMovimiento));
     for (const planta of mundo.plantas) {
       const { contexto: c, lienzo: capaPlanta } = planta.capa;
       const ancho = capaPlanta.width;
       const alto = capaPlanta.height;
-      const centro = (planta.x0 + planta.x1) / 2;
-      const fuerzaViento = viento(centro, tiempo);
+      const fuerzaViento = viento((planta.x0 + planta.x1) / 2 / escalaMovimiento, tiempo);
       c.clearRect(0, 0, ancho, alto);
-      for (let y = 0; y < alto; y += 3) {
+      for (let y = 0; y < alto; y += franja) {
         // Arriba se mueve mucho, abajo casi nada: la planta se dobla desde la base
         const altura = 1 - y / alto;
+        const v = (planta.y0 + y) / escalaMovimiento;
         const inclinacion = planta.fuerza * 6 * (fuerzaViento - 0.55) * Math.pow(altura, 1.6);
         const temblor = planta.fuerza * 1.3 * Math.pow(altura, 0.7) * (0.45 + fuerzaViento)
-          * (Math.sin(tiempo * 5.1 + (planta.y0 + y) * 0.21 + planta.id * 1.7)
-            + 0.6 * Math.sin(tiempo * 7.7 + (planta.y0 + y) * 0.47 + planta.id));
-        const dx = Math.round(inclinacion + temblor * 0.8);
+          * (Math.sin(tiempo * 5.1 + v * 0.21 + planta.id * 1.7)
+            + 0.6 * Math.sin(tiempo * 7.7 + v * 0.47 + planta.id));
+        const dx = Math.round((inclinacion + temblor * 0.8) * escalaMovimiento);
         if (dx === 0) continue;
-        c.drawImage(fuente.lienzo, planta.x0, planta.y0 + y, ancho, 3, dx, y, ancho, 3);
+        c.drawImage(fuente.lienzo, planta.x0, planta.y0 + y, ancho, franja, dx, y, ancho, franja);
       }
       c.globalCompositeOperation = 'destination-in';
       c.drawImage(planta.recorte, 0, 0);
@@ -287,41 +310,46 @@ export async function iniciarPaisaje(escena) {
     if (!recorte) return;
     const { caja } = recorte;
     const opciones = escena.pasto || {};
-    const amplitud = opciones.amplitud ?? 3;
+    const amplitud = (opciones.amplitud ?? 3) * escalaMovimiento;
     const c = capa.contexto;
-    const bloque = 36;
-    c.clearRect(0, caja.y0, ANCHO, caja.y1 - caja.y0 + 1);
-    for (let y = caja.y0, fila = 0; y <= caja.y1; y += 4, fila++) {
+    const bloque = Math.round(36 * escalaMovimiento);
+    const fila = Math.round(4 * escalaMovimiento);
+    const altoPasto = caja.y1 - caja.y0 + 1;
+    c.clearRect(0, caja.y0, ANCHO, altoPasto);
+    for (let y = caja.y0, n = 0; y <= caja.y1; y += fila, n++) {
       // Lo lejano casi no se mueve; lo cercano, bastante
       const cerca = suave(caja.y0 - 40, ALTO, y);
       if (amplitud * cerca < 0.5) continue;
-      const corrimiento = fila % 2 ? bloque / 2 : 0;
+      const corrimiento = n % 2 ? bloque / 2 : 0;
       for (let x = Math.max(0, caja.x0 - corrimiento); x <= caja.x1; x += bloque) {
-        const ola = Math.sin(x * 0.011 - tiempo * 1.9 + y * 0.013)
-          + 0.45 * Math.sin(x * 0.043 + tiempo * 3.3 + y * 0.09);
-        const dx = Math.round(amplitud * cerca * ((viento(x, tiempo) - 0.55) * 2.2 + ola * 0.5));
+        const u = x / escalaMovimiento;
+        const v = y / escalaMovimiento;
+        const ola = Math.sin(u * 0.011 - tiempo * 1.9 + v * 0.013)
+          + 0.45 * Math.sin(u * 0.043 + tiempo * 3.3 + v * 0.09);
+        const dx = Math.round(amplitud * cerca * ((viento(u, tiempo) - 0.55) * 2.2 + ola * 0.5));
         // Si el bloque no se corre, lo que ya está dibujado sirve
         if (dx === 0) continue;
-        c.drawImage(fuente.lienzo, x, y, bloque, 4, x + dx, y, bloque, 4);
+        c.drawImage(fuente.lienzo, x, y, bloque, fila, x + dx, y, bloque, fila);
       }
     }
     c.globalCompositeOperation = 'destination-in';
-    c.drawImage(recorte.lienzo, 0, caja.y0, ANCHO, caja.y1 - caja.y0 + 1, 0, caja.y0, ANCHO, caja.y1 - caja.y0 + 1);
+    c.drawImage(recorte.lienzo, 0, caja.y0, ANCHO, altoPasto, 0, caja.y0, ANCHO, altoPasto);
     // El viento peinando el pasto: franjas de luz que lo cruzan
     if (opciones.brillo) {
       c.globalCompositeOperation = 'source-atop';
+      const media = 220 * escalaMovimiento;
       for (let i = 0; i < 3; i++) {
-        const x = modulo(tiempo * 70 + i * 700, ANCHO + 900) - 450;
-        const franja = c.createLinearGradient(x - 220, 0, x + 220, 0);
-        franja.addColorStop(0, 'rgba(255, 255, 240, 0)');
-        franja.addColorStop(0.5, `rgba(255, 255, 240, ${opciones.brillo})`);
-        franja.addColorStop(1, 'rgba(255, 255, 240, 0)');
-        c.fillStyle = franja;
-        c.fillRect(x - 220, caja.y0, 440, caja.y1 - caja.y0 + 1);
+        const x = modulo((tiempo * 70 + i * 700) * escalaMovimiento, ANCHO + 4 * media) - 2 * media;
+        const luz = c.createLinearGradient(x - media, 0, x + media, 0);
+        luz.addColorStop(0, 'rgba(255, 255, 240, 0)');
+        luz.addColorStop(0.5, `rgba(255, 255, 240, ${opciones.brillo})`);
+        luz.addColorStop(1, 'rgba(255, 255, 240, 0)');
+        c.fillStyle = luz;
+        c.fillRect(x - media, caja.y0, media * 2, altoPasto);
       }
     }
     c.globalCompositeOperation = 'source-over';
-    ctx.drawImage(capa.lienzo, 0, caja.y0, ANCHO, caja.y1 - caja.y0 + 1, 0, caja.y0, ANCHO, caja.y1 - caja.y0 + 1);
+    ctx.drawImage(capa.lienzo, 0, caja.y0, ANCHO, altoPasto, 0, caja.y0, ANCHO, altoPasto);
   }
 
   function dibujarAgua() {
@@ -329,15 +357,17 @@ export async function iniciarPaisaje(escena) {
     if (!recorte) return;
     const { caja } = recorte;
     const alto = caja.y1 - caja.y0 + 1;
+    const franja = Math.max(2, Math.round(2 * escalaMovimiento));
     const c = capa.contexto;
     c.clearRect(0, caja.y0, ANCHO, alto);
     // Correr franjas de la propia imagen hace temblar los reflejos
-    for (let y = caja.y0; y <= caja.y1; y += 2) {
+    for (let y = caja.y0; y <= caja.y1; y += franja) {
       const profundidad = (y - caja.y0) / alto;
-      const dx = Math.round((Math.sin(y * 0.12 - tiempo * 2) + 0.5 * Math.sin(y * 0.27 + tiempo * 1.3))
-        * (1 + profundidad * 3) * (escena.agua?.amplitud ?? 1));
+      const v = y / escalaMovimiento;
+      const dx = Math.round((Math.sin(v * 0.12 - tiempo * 2) + 0.5 * Math.sin(v * 0.27 + tiempo * 1.3))
+        * (1 + profundidad * 3) * (escena.agua?.amplitud ?? 1) * escalaMovimiento);
       if (dx === 0) continue;
-      c.drawImage(fuente.lienzo, 0, y, ANCHO, 2, dx, y, ANCHO, 2);
+      c.drawImage(fuente.lienzo, 0, y, ANCHO, franja, dx, y, ANCHO, franja);
     }
     c.globalCompositeOperation = 'destination-in';
     c.drawImage(recorte.lienzo, 0, caja.y0, ANCHO, alto, 0, caja.y0, ANCHO, alto);
@@ -346,16 +376,19 @@ export async function iniciarPaisaje(escena) {
   }
 
   function dibujarVida(capaVida, dt) {
+    ctx.save();
+    ctx.scale(escalaMovimiento, escalaMovimiento);
     for (const ser of mundo.vida) {
       if (ser.capa !== capaVida) continue;
       if (dt > 0) ser.actualizar?.(dt, tiempo, mundo);
       ser.dibujar(ctx, tiempo, mundo);
     }
+    ctx.restore();
     ctx.globalAlpha = 1;
   }
 
   function dibujar(dt) {
-    ctx.drawImage(mundo.imagen, 0, 0);
+    ctx.drawImage(imagen, 0, 0);
     dibujarCielo();
     dibujarEstrellas();
     dibujarSol();
@@ -373,9 +406,9 @@ export async function iniciarPaisaje(escena) {
 
   function animar(ahora) {
     cuadro = null;
-    if (pausado || document.hidden || !listo) return;
-    // Hasta 30 cuadros por segundo; al volver a la pestaña no se salta el tiempo
-    if (anterior === null || ahora - anterior >= 1000 / 31) {
+    if (!activo || document.hidden) return;
+    // Sin pasarse de los fps pedidos; al volver a la pestaña no se salta el tiempo
+    if (anterior === null || ahora - anterior >= 1000 / (fps + 1)) {
       const dt = anterior === null ? 0 : Math.min((ahora - anterior) / 1000, 0.1);
       tiempo += dt;
       anterior = ahora;
@@ -388,93 +421,54 @@ export async function iniciarPaisaje(escena) {
     if (cuadro !== null) cancelAnimationFrame(cuadro);
     cuadro = null;
     anterior = null;
-    pausa.textContent = pausado ? 'Reanudar' : 'Pausar';
-    estado.textContent = pausado ? mensajeQuieto : mensajeVivo;
-    if (listo && !pausado && !document.hidden) cuadro = requestAnimationFrame(animar);
+    if (activo && !document.hidden) cuadro = requestAnimationFrame(animar);
   }
+  document.addEventListener('visibilitychange', sincronizar);
 
-  // El puntero en coordenadas de la ilustración, para que los animales reaccionen
-  function aCoordenadas(evento) {
+  // Pasa un punto de la pantalla a las coordenadas de los animales
+  function aCoordenadas(clienteX, clienteY) {
     const rect = lienzo.getBoundingClientRect();
+    const escalas = [rect.width / ANCHO, rect.height / ALTO];
+    const escala = ajuste === 'cubrir' ? Math.max(...escalas) : Math.min(...escalas);
     return {
-      x: (evento.clientX - rect.left) * ANCHO / rect.width,
-      y: (evento.clientY - rect.top) * ALTO / rect.height
+      x: (clienteX - rect.left - (rect.width - ANCHO * escala) / 2) / escala / escalaMovimiento,
+      y: (clienteY - rect.top - (rect.height - ALTO * escala) / 2) / escala / escalaMovimiento
     };
   }
-  const zona = document.querySelector('.paisaje');
-  zona.addEventListener('pointermove', (evento) => {
-    if (!mundo) return;
-    mundo.puntero = { ...aCoordenadas(evento), tiempo };
-  });
-  zona.addEventListener('pointerleave', () => {
-    if (mundo) mundo.puntero = null;
-  });
-  zona.addEventListener('pointerdown', (evento) => {
-    if (!mundo || evento.target.closest('button, a')) return;
-    const punto = aCoordenadas(evento);
-    mundo.puntero = { ...punto, tiempo };
-    for (const ser of mundo.vida) ser.tocar?.(punto, tiempo, mundo);
-  });
 
-  pausa.addEventListener('click', () => {
-    pausado = !pausado;
-    sincronizar();
-  });
-  document.addEventListener('visibilitychange', sincronizar);
-  reducirMovimiento.addEventListener('change', (evento) => {
-    pausado = evento.matches;
-    sincronizar();
-  });
-  prepararControles(estado);
+  dibujar(0);
 
-  try {
-    const [imagen, imagenMascara, textura] = await Promise.all([
-      imagenPagina.decode().then(() => imagenPagina),
-      cargarImagen(escena.mascara),
-      cargarImagen(escena.cielo.textura)
-    ]);
-    if (!ctx) throw new Error('Canvas no disponible');
-    mundo = { ...leerMascara(imagenMascara), imagen, textura, puntero: null, vida: [] };
-    mundo.vida = escena.crearVida ? escena.crearVida(mundo) : [];
-    listo = true;
-    dibujar(0);
-    lienzo.classList.add('listo');
-    pausa.disabled = false;
-    sincronizar();
-  } catch (error) {
-    console.error('No se pudo preparar el paisaje:', error);
-    estado.textContent = 'No se pudo animar el paisaje. Probá recargar la página.';
-  }
-}
-
-// Botones de ocultar la interfaz y de pantalla completa
-function prepararControles(estado) {
-  const pantalla = document.querySelector('#pantalla');
-  const ocultar = document.querySelector('#ocultar');
-  const mostrar = document.querySelector('#mostrar');
-
-  function mostrarInterfaz(visible) {
-    document.querySelectorAll('.interfaz').forEach((elemento) => { elemento.hidden = !visible; });
-    mostrar.hidden = visible;
-    ocultar.setAttribute('aria-pressed', String(!visible));
-    (visible ? ocultar : mostrar).focus();
-  }
-  ocultar.addEventListener('click', () => mostrarInterfaz(false));
-  mostrar.addEventListener('click', () => mostrarInterfaz(true));
-  document.addEventListener('keydown', (evento) => {
-    if (evento.key === 'Escape' && !mostrar.hidden) mostrarInterfaz(true);
-  });
-
-  pantalla.hidden = !document.fullscreenEnabled;
-  pantalla.addEventListener('click', async () => {
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await document.documentElement.requestFullscreen();
-    } catch {
-      estado.textContent = 'Tu navegador no pudo abrir la pantalla completa.';
+  return {
+    ancho: ANCHO,
+    alto: ALTO,
+    reproducir() {
+      activo = true;
+      sincronizar();
+    },
+    pausar() {
+      activo = false;
+      sincronizar();
+    },
+    mover(clienteX, clienteY) {
+      mundo.puntero = { ...aCoordenadas(clienteX, clienteY), tiempo };
+    },
+    salir() {
+      mundo.puntero = null;
+    },
+    tocar(clienteX, clienteY) {
+      const punto = aCoordenadas(clienteX, clienteY);
+      mundo.puntero = { ...punto, tiempo };
+      for (const ser of mundo.vida) ser.tocar?.(punto, tiempo, mundo);
+    },
+    destruir() {
+      activo = false;
+      sincronizar();
+      document.removeEventListener('visibilitychange', sincronizar);
     }
-  });
-  document.addEventListener('fullscreenchange', () => {
-    pantalla.textContent = document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa';
-  });
+  };
 }
+
+// La versión que va en cada menú: horizontal en pantallas anchas y vertical
+// en celulares parados, igual que los fondos quietos de antes
+export const CONSULTA_VERTICAL = '(orientation: portrait) and (max-width: 900px)';
+

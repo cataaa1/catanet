@@ -49,6 +49,8 @@ CataNet/
 │   └── game-specs/
 │       ├── co-wordle.md
 │       └── sudoku.md
+├── herramientas/
+│   └── mascaras-paisajes.py     ← genera máscaras y cielos de los paisajes (Python, se corre a mano)
 ├── backend/
 │   ├── package.json
 │   ├── server.js                ← Express + Socket.io + estáticos
@@ -62,6 +64,13 @@ CataNet/
 └── frontend/
     ├── manifest.webmanifest     ← datos de la PWA (nombre, colores, iconos)
     ├── icons/                   ← favicon e iconos de la app
+    ├── background/              ← paisajes animados de los menús
+    │   ├── motor.js             ← viento, nubes, agua y pasto sobre la ilustración
+    │   ├── vida.js              ← animales y partículas
+    │   ├── escenas.js           ← qué pasa en cada fondo (horizontal y vertical)
+    │   ├── fondo.js             ← montarFondoAnimado(n) para los menús
+    │   ├── assets/              ← máscaras de regiones y texturas de cielo
+    │   └── 1/ … 4/              ← cada paisaje a pantalla completa, para probar
     ├── hub/
     │   ├── index.html           ← menú principal de CataNet
     │   └── assets/              ← logos y fondos de los menús
@@ -152,6 +161,7 @@ desde la raíz del repo vas a recibir un error `ENOENT ... package.json`.
 - [x] Co-Wordle: cooperativo por turnos, online
 - [x] Sudoku: individual, diario (experto, uno por día) y carrera online
 - [x] Buscaminas: motor compartido, menú de familia y los tres modos
+- [x] Fondos animados en los menús (viento, nubes, agua y animales), con versión vertical
 
 ### Pendiente
 - [ ] Probar de punta a punta los modos online con dos clientes reales

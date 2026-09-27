@@ -5,3 +5,6 @@ node_modules/
 
 # Resultados de corridas de prueba
 test-results/
+
+# Vistas previas del generador de mascaras de paisajes
+herramientas/salida/

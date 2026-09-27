@@ -76,12 +76,20 @@
     }
 
     .bg-scene {
-      background:
-        linear-gradient(180deg, rgba(255, 250, 246, 0.18) 0%, rgba(84, 65, 78, 0.16) 100%),
-        url("/hub/assets/menus/background-1.png") center center / cover no-repeat;
+      background: url("/hub/assets/menus/background-1.png") center center / cover no-repeat;
       transform: scale(1.06);
       filter: saturate(0.95) contrast(1.02) brightness(0.99);
       animation: escena-flota 12s ease-in-out infinite alternate;
+    }
+
+    /* Los degradés van por encima del paisaje animado (el canvas que agrega
+       /background/fondo.js adentro de .bg-scene), igual que antes sobre la imagen. */
+    .bg-scene::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 246, 0.18) 0%, rgba(84, 65, 78, 0.16) 100%);
     }
 
     .bg-overlay {
@@ -513,10 +521,7 @@
        una version vertical de cada fondo, derivada de la misma ilustracion. */
     @media (orientation: portrait) and (max-width: 900px) {
       .bg-scene {
-        background-image:
-          linear-gradient(180deg, rgba(255, 250, 246, 0.18) 0%, rgba(84, 65, 78, 0.16) 100%),
-          
-          url("/hub/assets/menus/background-1-vertical.png");
+        background-image: url("/hub/assets/menus/background-1-vertical.png");
       }
     }
   </style>
@@ -546,6 +551,7 @@
   </div>
 
   <script type="module">
+    import { montarFondoAnimado } from '/background/fondo.js';
     import { estaDisponible, obtenerModosPorFamilia } from '/shared/catalog.js';
     import { programarAvion } from '/shared/avion.js';
 
@@ -596,6 +602,9 @@
 
     // El avioncito con el cartel, arriba del titulo
     programarAvion();
+
+    // El paisaje de fondo cobra vida: viento, nubes y animales
+    montarFondoAnimado(1);
   </script>
 </body>
 </html>

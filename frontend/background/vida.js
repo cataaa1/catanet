@@ -9,7 +9,7 @@
 //   'suelo' → sobre el pasto (conejos, ciervos, zorro)
 //   'aire'  → adelante de todo (mariposas, hojas, luciérnagas)
 
-import { ANCHO, crearAzar, viento, prepararSprite, dibujarSprite, pixel } from '/background/motor.js';
+import { crearAzar, viento, prepararSprite, dibujarSprite, pixel } from '/background/motor.js';
 
 const REGION_PASTO = 3;
 const REGION_AGUA = 4;
@@ -287,7 +287,7 @@ export function bandada({ semilla = 3, y = [80, 220], color = '#6d5a70', cada = 
   let pajaros = [];
   let espera = 3 + azar() * 6;
 
-  function lanzar() {
+  function lanzar(ANCHO) {
     const cantidad = Math.round(tamano[0] + azar() * (tamano[1] - tamano[0]));
     const direccion = azar() < 0.75 ? 1 : -1; // casi siempre con el viento
     const altura = y[0] + azar() * (y[1] - y[0]);
@@ -307,17 +307,17 @@ export function bandada({ semilla = 3, y = [80, 220], color = '#6d5a70', cada = 
 
   return {
     capa: 'cielo',
-    actualizar(dt, tiempo) {
+    actualizar(dt, tiempo, mundo) {
       if (!pajaros.length) {
         espera -= dt;
-        if (espera <= 0) lanzar();
+        if (espera <= 0) lanzar(mundo.ancho);
         return;
       }
       for (const p of pajaros) {
         p.x += p.velocidad * dt;
         p.y += Math.sin(tiempo * 0.7 + p.fase) * 4 * dt;
       }
-      if (pajaros.every((p) => p.x < -80 || p.x > ANCHO + 80)) {
+      if (pajaros.every((p) => p.x < -80 || p.x > mundo.ancho + 80)) {
         pajaros = [];
         espera = cada[0] + azar() * (cada[1] - cada[0]);
       }
@@ -878,7 +878,7 @@ export function hojas({ semilla = 11, origenes, colores, cantidad = 14, escala =
   for (let i = 0; i < cantidad; i++) lista.push(nueva(true));
   return {
     capa: 'aire',
-    actualizar(dt, tiempo) {
+    actualizar(dt, tiempo, mundo) {
       for (let i = 0; i < lista.length; i++) {
         const h = lista[i];
         h.vida += dt;
@@ -889,7 +889,7 @@ export function hojas({ semilla = 11, origenes, colores, cantidad = 14, escala =
         } else {
           h.x += empuje * 6 * dt; // en el suelo apenas se arrastra
         }
-        if (h.vida > 14 || h.x > ANCHO + 20) lista[i] = nueva(false);
+        if (h.vida > 14 || h.x > mundo.ancho + 20) lista[i] = nueva(false);
       }
     },
     dibujar(ctx, tiempo) {
@@ -915,11 +915,11 @@ export function pelusas({ semilla = 23, cantidad = 10, zona, color = '#fbf7ee' }
   }));
   return {
     capa: 'aire',
-    actualizar(dt, tiempo) {
+    actualizar(dt, tiempo, mundo) {
       for (const p of lista) {
         p.x += (viento(p.x, tiempo) * 45 + 5) * dt;
         p.y += (Math.sin(tiempo * 0.9 + p.fase) * 9 - 3) * dt;
-        if (p.x > ANCHO + 10) {
+        if (p.x > mundo.ancho + 10) {
           p.x = -10;
           p.y = zona.y0 + azar() * (zona.y1 - zona.y0);
         }
@@ -971,7 +971,7 @@ export function niebla({ semilla = 31, bandas, color = '255, 226, 232' } = {}) {
     const filas = 4 + Math.floor(azar() * 4);
     return {
       ...banda,
-      x: azar() * (ANCHO + 800) - 400,
+      x: azar() * 2200 - 400,
       fase: azar() * 10,
       filas: Array.from({ length: filas }, (_, i) => {
         // Más ancha en el medio, afinándose arriba y abajo
@@ -983,9 +983,9 @@ export function niebla({ semilla = 31, bandas, color = '255, 226, 232' } = {}) {
   }));
   return {
     capa: 'cielo',
-    dibujar(ctx, tiempo) {
+    dibujar(ctx, tiempo, mundo) {
       for (const b of bancos) {
-        const x = ((b.x + tiempo * b.velocidad) % (ANCHO + 900)) - 450;
+        const x = ((b.x + tiempo * b.velocidad) % (mundo.ancho + 900)) - 450;
         const y = b.y + Math.sin(tiempo * 0.1 + b.fase) * 4 - b.filas.length * 3;
         const respiro = 0.7 + 0.3 * Math.sin(tiempo * 0.2 + b.fase);
         b.filas.forEach((fila, i) => {

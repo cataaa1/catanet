@@ -80,12 +80,20 @@
 
     /* La ilustracion pixel art lleva el peso visual y se mueve apenas para dar vida. */
     .bg-scene {
-      background:
-        linear-gradient(180deg, rgba(255, 250, 246, 0.2) 0%, rgba(255, 250, 246, 0.02) 24%, rgba(84, 65, 78, 0.14) 100%),
-        radial-gradient(circle at center, rgba(255, 251, 241, 0.12) 0%, rgba(255, 251, 241, 0) 52%),
-        url("/hub/assets/menus/background-4.png") center center / cover no-repeat;
+      background: url("/hub/assets/menus/background-4.png") center center / cover no-repeat;
       transform: scale(1.05);
       filter: saturate(0.94) contrast(1.03) brightness(1.01);
+    }
+
+    /* Los degradés van por encima del paisaje animado (el canvas que agrega
+       /background/fondo.js adentro de .bg-scene), igual que antes sobre la imagen. */
+    .bg-scene::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 246, 0.2) 0%, rgba(255, 250, 246, 0.02) 24%, rgba(84, 65, 78, 0.14) 100%),
+        radial-gradient(circle at center, rgba(255, 251, 241, 0.12) 0%, rgba(255, 251, 241, 0) 52%);
     }
 
     .bg-overlay {
@@ -496,11 +504,7 @@
        una version vertical de cada fondo, derivada de la misma ilustracion. */
     @media (orientation: portrait) and (max-width: 900px) {
       .bg-scene {
-        background-image:
-          linear-gradient(180deg, rgba(255, 250, 246, 0.2) 0%, rgba(255, 250, 246, 0.02) 24%, rgba(84, 65, 78, 0.14) 100%),
-          radial-gradient(circle at center, rgba(255, 251, 241, 0.12) 0%, rgba(255, 251, 241, 0) 52%),
-          
-          url("/hub/assets/menus/background-4-vertical.png");
+        background-image: url("/hub/assets/menus/background-4-vertical.png");
       }
     }
   </style>
@@ -522,6 +526,7 @@
     <footer class="footer">&copy; CataNet &middot; Hecho con ♥</footer>
   </div>
   <script type="module">
+    import { montarFondoAnimado } from '/background/fondo.js';
     import { familias, estaDisponible } from '/shared/catalog.js';
     import { programarAvion } from '/shared/avion.js';
 
@@ -553,6 +558,9 @@
 
     // El avioncito con el cartel, arriba del titulo
     programarAvion();
+
+    // El paisaje de fondo cobra vida: viento, nubes y animales
+    montarFondoAnimado(4);
   </script>
 </body>
 </html>
