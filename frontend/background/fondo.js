@@ -27,6 +27,8 @@ export function montarFondoAnimado(numero, contenedor = document.querySelector('
       width: '100%',
       height: '100%',
       objectFit: 'cover',
+      // Pixel art nítido: cada píxel del dibujo se agranda sin difuminarse
+      imageRendering: 'pixelated',
       opacity: '0',
       transition: 'opacity 0.8s ease'
     });

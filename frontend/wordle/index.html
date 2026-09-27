@@ -77,9 +77,8 @@
 
     .bg-scene {
       background: url("/hub/assets/menus/background-1.png") center center / cover no-repeat;
-      transform: scale(1.06);
+      image-rendering: pixelated;
       filter: saturate(0.95) contrast(1.02) brightness(0.99);
-      animation: escena-flota 12s ease-in-out infinite alternate;
     }
 
     /* Los degradés van por encima del paisaje animado (el canvas que agrega
@@ -370,11 +369,6 @@
     @keyframes rise {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes escena-flota {
-      0% { transform: scale(1.06) translate3d(-8px, 0, 0); }
-      100% { transform: scale(1.08) translate3d(10px, -18px, 0); }
     }
 
 
